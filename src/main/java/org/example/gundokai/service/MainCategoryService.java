@@ -13,6 +13,8 @@ import org.example.gundokai.repository.MainCategoryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
@@ -29,5 +31,26 @@ public class MainCategoryService {
         MainCategory mainCategory = mainCategoryMapper.toMainCategory(mainCategoryRequest);
         mainCategory.setCategoryImg(categoryImg);
         return mainCategoryMapper.toMainCategoryResponse(mainCategoryRepository.save(mainCategory));
+    }
+
+    public MainCategoryResponse updateMainCategory(String id,MainCategoryRequest mainCategoryRequest, MultipartFile file){
+        MainCategory mainCategory = mainCategoryRepository.findById(id).orElseThrow(
+                ()->new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+        if(!mainCategoryRequest.getCategoryName().isBlank()){
+            mainCategory.setCategoryName(mainCategoryRequest.getCategoryName());
+        }
+        if (file != null && !file.isEmpty()) {
+            fileStorageService.deleteFile(mainCategory.getCategoryImg());
+            String categoryImg = fileStorageService.uploadFile(file);
+            mainCategory.setCategoryImg(categoryImg);
+        }
+        return mainCategoryMapper.toMainCategoryResponse(mainCategoryRepository.save(mainCategory));
+    }
+
+    public List<MainCategory> GetAllMainCategory(){
+        if(mainCategoryRepository.findAll().isEmpty()){
+             throw new AppException(ErrorCode.LIST_EMPTY);
+         }
+         return mainCategoryRepository.findAll();
     }
 }
