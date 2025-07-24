@@ -14,3 +14,15 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB     # Tăng giới hạn file tối đa lên 50MB
+      max-request-size: 50MB  # Tăng giới hạn request tối đa lên 50MB
+      file-size-threshold: 1MB  # File lớn hơn 1MB sẽ được ghi tạm vào đĩa
+
+cloudinary:
+  cloud_name: do833qd1e
+  api_key: 962378583777681
+  api_secrect: CxMdYY3YxOaYUofjezk3lu6resg
