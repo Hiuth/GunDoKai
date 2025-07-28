@@ -19,6 +19,8 @@ public enum ErrorCode {
     SUB_CATEGORY_NOT_EXISTS(10011, "Sub category not found", HttpStatus.BAD_REQUEST),
     SUB_CATEGORY_ALREADY_EXISTS(10012, "Sub category already exists", HttpStatus.BAD_REQUEST),
     CATEGORY_NOT_EXISTS(10013, "Category not found", HttpStatus.BAD_REQUEST),
+    PRODUCT_ALREADY_EXISTS(10014, "Product already exists", HttpStatus.BAD_REQUEST),
+    PRODUCT_NOT_EXISTS(10015, "Product not found", HttpStatus.BAD_REQUEST),
     INVALID_KEY(8888, "Invalid key", HttpStatus.BAD_REQUEST),
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized exception", HttpStatus.SERVICE_UNAVAILABLE),
     ;
