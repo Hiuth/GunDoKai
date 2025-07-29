@@ -10,6 +10,5 @@ import org.mapstruct.Mapping;
 public interface MainCategoryMapper {
     MainCategory toMainCategory(MainCategoryRequest mainCategoryRequest);
 
-    @Mapping(source = "subCategory.id", target = "subCategoryId")
     MainCategoryResponse toMainCategoryResponse(MainCategory mainCategory);
 }

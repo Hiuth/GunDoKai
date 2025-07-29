@@ -14,7 +14,7 @@ public class ProductImg {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
-    String ProductImg;
+    String productImg;
 
     @ManyToOne
     @JoinColumn(name = "product_id", referencedColumnName = "id")
