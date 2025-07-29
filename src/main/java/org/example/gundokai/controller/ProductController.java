@@ -47,20 +47,28 @@ public class ProductController {
     public ApiResponse<ProductResponse> updateProduct(
             @PathVariable("productId") String productId,
             @RequestParam("productName") String productName,
-            @RequestParam("price") long price,
+            @RequestParam("price") String price,
             @RequestParam("description") String description,
             @RequestParam("status") String status,
             @RequestParam("subCategoryId") String subCategoryId,
-            @RequestParam("stockQuantity") int stockQuantity,
+            @RequestParam("stockQuantity") String stockQuantity,
             @RequestPart(value = "file",required = false) MultipartFile file
     ){
+        long priceLong = 0 ;
+        int stockQuantityInt = 0;
+        if(!price.isBlank()){
+            priceLong = Long.parseLong(price);
+        }
+        if(!stockQuantity.isBlank()){
+            stockQuantityInt = Integer.parseInt(stockQuantity);
+        }
         ProductUpdateRequest productUpdateRequest = ProductUpdateRequest.builder()
                 .productName(productName)
-                .price(price)
+                .price(priceLong)
                 .description(description)
                 .status(status)
                 .subCategoryId(subCategoryId)
-                .stockQuantity(stockQuantity)
+                .stockQuantity(stockQuantityInt)
                 .build();
         ApiResponse<ProductResponse> response = new ApiResponse<>();
         response.setMessage("Product Updated: "+ productName);
