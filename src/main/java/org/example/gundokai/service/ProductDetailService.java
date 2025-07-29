@@ -74,6 +74,5 @@ public class ProductDetailService {
         }
         return "Deleted product detail successfully";
     }
-
 }
 
