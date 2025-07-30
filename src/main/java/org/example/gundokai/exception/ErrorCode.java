@@ -26,6 +26,12 @@ public enum ErrorCode {
     PRODUCT_DETAIL_ALREADY_EXISTS(10018, "Product detail already exists", HttpStatus.BAD_REQUEST),
     INVALID_KEY(8888, "Invalid key", HttpStatus.BAD_REQUEST),
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized exception", HttpStatus.SERVICE_UNAVAILABLE),
+    USER_NOT_EXISTED(1005, "User not existed", HttpStatus.NOT_FOUND),
+    UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
+    UNAUTHENTICATED(1006, "Unauthenticated", HttpStatus.UNAUTHORIZED),
+    USER_EXISTED(1002, "User existed", HttpStatus.BAD_REQUEST),
+    EMAIL_ALREADY_EXISTED(1003,"Email exited",HttpStatus.BAD_REQUEST),
+    VERIFICATION_CODE_INVALID(1053, "Verification code invalid", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

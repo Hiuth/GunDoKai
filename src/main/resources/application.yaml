@@ -1,11 +1,31 @@
 server:
   port: 8080
 
+jwt:
+  signerKey: "qUZg3QK6XUc8M6ydXOoEGekDIOEDNhlFqlFm7GdiqXus9EgqwzvBPEOI+fATDHZI"
+  valid-duration: 36000  # Thời gian hết hạn token (giây)
+  refreshable-duration: 36000  # Thời gian hết hạn refresh token (giây)
+
 spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: 2025letmecook@gmail.com
+    password: xgpryoziwthfiude
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 3000
+          writetimeout: 5000
+
   datasource:
     url: jdbc:mysql://localhost:3306/gundokai
     username: root
-    password: vuhoangquan2004
+    password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
