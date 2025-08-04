@@ -1,12 +1,17 @@
 package org.example.gundokai.mapper;
 
+import org.example.gundokai.dto.request.OrderDetailRequest;
 import org.example.gundokai.dto.request.OrderRequest;
+import org.example.gundokai.dto.respone.OrderDetailResponse;
 import org.example.gundokai.dto.respone.OrderResponse;
 import org.example.gundokai.entity.Order;
+import org.example.gundokai.entity.OrderDetail;
 import org.example.gundokai.entity.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
+import org.mapstruct.*;
+import org.mapstruct.factory.Mappers;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
@@ -18,7 +23,8 @@ public interface OrderMapper {
             @Mapping(source = "total", target = "totalAmount"),
             @Mapping(source = "customerName", target = "customerName"),
             @Mapping(source = "phoneNumber", target = "phoneNumber"),
-            @Mapping(source = "address", target = "address")
+            @Mapping(source = "address", target = "address"),
+            @Mapping(target = "orderDetails", ignore = true)
     })
     Order toOrder(OrderRequest orderRequest);
 
@@ -31,8 +37,30 @@ public interface OrderMapper {
             @Mapping(source = "orderDate", target = "orderDate"),
             @Mapping(source = "totalAmount", target = "totalAmount"),
             @Mapping(source = "status", target = "status"),
-            @Mapping(source = "paymentMethod", target = "paymentMethod")
+            @Mapping(source = "paymentMethod", target = "paymentMethod"),
+            @Mapping(source = "orderDetails", target = "orderDetails")
     })
     OrderResponse toOrderResponse(Order order);
-}
 
+    @Mappings({
+            @Mapping(target = "id", ignore = true),
+            @Mapping(target = "order", ignore = true),
+            @Mapping(target = "product", ignore = true),
+            @Mapping(source = "quantity", target = "quantity"),
+            @Mapping(target = "unitPrice", ignore = true),
+            @Mapping(target = "subTotal", ignore = true)
+    })
+    OrderDetail toOrderDetail(OrderDetailRequest request, @MappingTarget OrderDetail detail);
+
+    @Mappings({
+            @Mapping(source = "id", target = "id"),
+            @Mapping(source = "order.id", target = "orderId"),
+            @Mapping(source = "product.id", target = "productId"),
+            @Mapping(source = "quantity", target = "quantity"),
+            @Mapping(source = "unitPrice", target = "unitPrice"),
+            @Mapping(source = "subTotal", target = "subTotal")
+    })
+    OrderDetailResponse toOrderDetailResponse(OrderDetail detail);
+
+    List<OrderDetail> toOrderDetailList(List<OrderDetailRequest> items);
+}

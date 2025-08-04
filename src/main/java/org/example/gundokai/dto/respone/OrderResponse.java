@@ -6,6 +6,7 @@ import org.example.gundokai.enums.PaymentMethod;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @Data
@@ -18,6 +19,6 @@ public class OrderResponse {
     private LocalDateTime orderDate;
     private BigDecimal totalAmount;
     private OrderStatus status;
-
     private PaymentMethod paymentMethod;
+    private List<OrderDetailResponse> orderDetails;
 }

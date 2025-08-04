@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;// tạo ra 1 object rỗng, để khi có reque
 import lombok.Builder;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -17,4 +18,5 @@ public class OrderRequest {
     private String phoneNumber;
     private String address;
     private String customerName;
+    private List<OrderDetailRequest> items;
 }
