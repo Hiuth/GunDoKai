@@ -20,7 +20,8 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/users/**", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh"
+            "/users/**", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh", "/vnpay-return",
+            "/vnpay/**"
     };
 
     @Autowired
@@ -30,6 +31,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
                 .permitAll()
+                .requestMatchers(HttpMethod.GET, "/vnpay-return", "/vnpay/**").permitAll()
                 .anyRequest()
                 .authenticated());
 

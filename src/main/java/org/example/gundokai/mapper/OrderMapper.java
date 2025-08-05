@@ -38,6 +38,7 @@ public interface OrderMapper {
             @Mapping(source = "totalAmount", target = "totalAmount"),
             @Mapping(source = "status", target = "status"),
             @Mapping(source = "paymentMethod", target = "paymentMethod"),
+            @Mapping(source = "paymentStatus", target = "paymentStatus"),
             @Mapping(source = "orderDetails", target = "orderDetails")
     })
     OrderResponse toOrderResponse(Order order);
