@@ -9,6 +9,7 @@ import org.example.gundokai.dto.respone.MainCategoryResponse;
 import org.example.gundokai.entity.MainCategory;
 import org.example.gundokai.service.MainCategoryService;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +22,7 @@ import java.util.List;
 public class MainCategoryController {
     MainCategoryService mainCategoryService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/create",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<MainCategoryResponse> createMainCategory(
             @RequestParam("categoryName") String categoryName,

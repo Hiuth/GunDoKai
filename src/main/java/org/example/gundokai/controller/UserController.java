@@ -2,9 +2,11 @@ package org.example.gundokai.controller;
 
 import java.util.List;
 
+import org.example.gundokai.dto.request.ResetPasswordRequest;
 import org.example.gundokai.dto.request.UserCreationRequest;
 import org.example.gundokai.dto.request.UserUpdateRequest;
 import org.example.gundokai.dto.respone.ApiResponse;
+import org.example.gundokai.dto.respone.EmailResponse;
 import org.example.gundokai.dto.respone.UserResponse;
 import org.example.gundokai.service.UserService;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -77,6 +79,37 @@ public class UserController {
     ApiResponse<UserResponse> updateMyProfile(@RequestBody UserUpdateRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.updateMyProfile(request))
+                .build();
+    }
+
+    @PostMapping("/request-password-reset")
+    public ApiResponse<String> requestPasswordReset(@RequestParam("email") String email) {
+        userService.sendPasswordResetCode(email);
+        return ApiResponse.<String>builder()
+                .message("Mã xác nhận đổi mật khẩu đã được gửi về " + email)
+                .build();
+    }
+
+    @PostMapping("/reset-password")
+    public ApiResponse<Void> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        userService.resetPassword(request.getEmail(), request.getCode(), request.getNewPassword());
+        return ApiResponse.<Void>builder()
+                .message("Password reset successful")
+                .build();
+    }
+
+    @GetMapping("/search")
+    public ApiResponse<List<EmailResponse>> searchByEmail(@RequestParam("keyword") String keyword) {
+        List<EmailResponse> result = userService.searchByEmail(keyword);
+        return ApiResponse.<List<EmailResponse>>builder()
+                .result(result)
+                .build();
+    }
+
+    @GetMapping("/count")
+    ApiResponse<Long> getUserCount() {
+        return ApiResponse.<Long>builder()
+                .result(userService.countUsers())
                 .build();
     }
 }

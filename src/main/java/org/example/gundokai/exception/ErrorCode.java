@@ -31,7 +31,24 @@ public enum ErrorCode {
     UNAUTHENTICATED(1021, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     USER_EXISTED(1022, "User already exists", HttpStatus.BAD_REQUEST),
     EMAIL_ALREADY_EXISTED(1023, "Email already exists", HttpStatus.BAD_REQUEST),
-    VERIFICATION_CODE_INVALID(1053, "Verification code invalid", HttpStatus.BAD_REQUEST);
+    VERIFICATION_CODE_INVALID(1053, "Verification code invalid", HttpStatus.BAD_REQUEST),
+    ORDER_NOT_FOUND(2001, "Order not found", HttpStatus.NOT_FOUND),
+    ORDER_INVALID_STATUS(2002, "Invalid order status", HttpStatus.BAD_REQUEST),
+    ORDER_ALREADY_CANCELLED(2003, "Order has already been cancelled", HttpStatus.BAD_REQUEST),
+    ORDER_CANNOT_BE_UPDATED(2004, "Order cannot be updated", HttpStatus.BAD_REQUEST),
+    ORDER_PAYMENT_FAILED(2005, "Payment failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    ORDER_ALREADY_PAID(2006, "Order has already been paid", HttpStatus.BAD_REQUEST),
+    ORDER_ACCESS_DENIED(2007, "You are not allowed to access this order", HttpStatus.FORBIDDEN),
+    ORDER_CREATE_FAILED(2008, "Failed to create order", HttpStatus.INTERNAL_SERVER_ERROR),
+    ORDER_CANNOT_REPAY(2009, "Only orders with failed payment can be repaid", HttpStatus.BAD_REQUEST),
+    ORDER_DETAIL_NOT_FOUND(2010, "Order detail not found", HttpStatus.NOT_FOUND),
+    ORDER_DETAIL_ALREADY_EXISTS(2011, "Order detail already exists for this order and product", HttpStatus.BAD_REQUEST),
+    ORDER_DETAIL_INVALID_QUANTITY(2012, "Invalid quantity for order detail", HttpStatus.BAD_REQUEST),
+    ORDER_DETAIL_UPDATE_FAILED(2013, "Failed to update order detail", HttpStatus.INTERNAL_SERVER_ERROR),
+    ORDER_DETAIL_DELETE_FAILED(2014, "Failed to delete order detail", HttpStatus.INTERNAL_SERVER_ERROR),
+    ORDER_DETAIL_PRODUCT_NOT_FOUND(2015, "Product not found for order detail", HttpStatus.NOT_FOUND),
+    ORDER_DETAIL_ORDER_NOT_FOUND(2016, "Order not found for order detail", HttpStatus.NOT_FOUND),
+    INVALID_INPUT(2017,"Invalid input", HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;
