@@ -11,6 +11,7 @@ import org.example.gundokai.dto.respone.SubCategoryResponse;
 import org.example.gundokai.entity.SubCategory;
 import org.example.gundokai.service.SubCategoryService;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,6 +24,7 @@ import java.util.List;
 public class SubCategoryController {
     SubCategoryService subCategoryService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/create/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<SubCategoryResponse> createSubCategory(
             @PathVariable("id") String categoryId,
@@ -40,6 +42,7 @@ public class SubCategoryController {
         return response;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(value = "/update/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<SubCategoryResponse> updateSubCategory(
             @PathVariable("id") String subCategoryId,

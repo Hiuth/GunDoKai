@@ -8,6 +8,7 @@ import org.example.gundokai.dto.request.ProductDetailRequest;
 import org.example.gundokai.dto.respone.ApiResponse;
 import org.example.gundokai.dto.respone.ProductDetailResponse;
 import org.example.gundokai.service.ProductDetailService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class ProductDetailController {
     ProductDetailService productDetailService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create/{productId}")
     public ApiResponse<ProductDetailResponse> createProductDetail(@Valid @RequestBody ProductDetailRequest productDetailRequest, @PathVariable String productId){
         ApiResponse<ProductDetailResponse> response = new ApiResponse<>();
@@ -25,6 +27,7 @@ public class ProductDetailController {
         return response;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update/{productDetailId}")
     public ApiResponse<ProductDetailResponse> updateProductDetail(@Valid @RequestBody ProductDetailRequest productDetailRequest, @PathVariable String productDetailId){
         ApiResponse<ProductDetailResponse> response = new ApiResponse<>();
@@ -41,6 +44,7 @@ public class ProductDetailController {
         return response;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete/{productDetailId}")
     public ApiResponse<String> deleteProductDetail(@PathVariable String productDetailId){
         ApiResponse<String> response = new ApiResponse<>();

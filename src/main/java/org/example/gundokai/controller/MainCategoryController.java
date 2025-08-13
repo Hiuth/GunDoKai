@@ -36,6 +36,7 @@ public class MainCategoryController {
         return response;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(value = "/update/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<MainCategoryResponse> updateMainCategory(
             @PathVariable("id") String id,
