@@ -53,4 +53,15 @@ public class MainCategoryService {
          }
          return mainCategoryRepository.findAll();
     }
+
+    public String deleteMainCategory(String id){
+        MainCategory mainCategory = mainCategoryRepository.findById(id).orElseThrow(
+                ()->new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+        fileStorageService.deleteFile(mainCategory.getCategoryImg());
+        mainCategoryRepository.delete(mainCategory);
+        if(mainCategoryRepository.existsById(id)){
+            return "Deleted category failed";
+        }
+        return "Deleted category successfully";
+    }
 }

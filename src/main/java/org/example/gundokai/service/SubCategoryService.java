@@ -77,4 +77,23 @@ public class SubCategoryService {
         }
         return subCategoryRepository.findAllByMainCategoryId(mainCategoryId);
     }
+
+    public List<SubCategory> getAllSubCategory(){
+        if(subCategoryRepository.findAll().isEmpty()){
+            throw new AppException(ErrorCode.LIST_EMPTY);
+        }
+        return subCategoryRepository.findAll();
+    }
+
+    public String deleteSubCategory(String subCategoryId){
+        SubCategory subCategory = subCategoryRepository.findById(subCategoryId).orElseThrow(
+                ()-> new AppException(ErrorCode.SUB_CATEGORY_NOT_EXISTS)
+        );
+        fileStorageService.deleteFile(subCategory.getSubCategoryImg());
+        subCategoryRepository.delete(subCategory);
+        if(subCategoryRepository.existsById(subCategoryId)){
+            return "Deleted sub category failed";
+        }
+        return "Deleted sub category successfully";
+    }
 }

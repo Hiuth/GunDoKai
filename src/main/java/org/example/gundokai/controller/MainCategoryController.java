@@ -58,4 +58,13 @@ public class MainCategoryController {
         response.setResult(mainCategoryService.GetAllMainCategory());
         return response;
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/delete/{id}")
+    public ApiResponse<String> deleteMainCategory(@PathVariable String id){
+        ApiResponse<String> response = new ApiResponse<>();
+        response.setMessage("Main Category Deleted");
+        response.setResult(mainCategoryService.deleteMainCategory(id));
+        return response;
+    }
 }

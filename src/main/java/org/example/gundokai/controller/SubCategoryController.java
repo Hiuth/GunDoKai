@@ -62,11 +62,29 @@ public class SubCategoryController {
         return response;
     }
 
-    @GetMapping("/getAll/{id}")
+    @GetMapping("/getAllByCategory/{id}")
     public ApiResponse<List<SubCategory>> getAllSubCategory(@PathVariable("id") String categoryId){
         ApiResponse<List<SubCategory>> response = new ApiResponse<>();
         response.setMessage("Get All Sub Category");
         response.setResult(subCategoryService.getSubCategoryByMainCategoryId(categoryId));
+        return response;
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/delete/{id}")
+    public ApiResponse<String> deleteSubCategory(@PathVariable("id") String subCategoryId){
+        ApiResponse<String> response = new ApiResponse<>();
+        response.setMessage("Sub Category Deleted");
+        response.setResult(subCategoryService.deleteSubCategory(subCategoryId));
+        return response;
+    }
+
+    @PreAuthorize( "hasRole('ADMIN')")
+    @GetMapping("/getAll")
+    public ApiResponse<List<SubCategory>> getSubCategory(){
+        ApiResponse<List<SubCategory>> response = new ApiResponse<>();
+        response.setMessage("Get Sub Category");
+        response.setResult(subCategoryService.getAllSubCategory());
         return response;
     }
 }

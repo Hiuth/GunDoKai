@@ -3,6 +3,8 @@ package org.example.gundokai.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -26,6 +28,7 @@ public class Product {
 
     @ManyToOne
     @JoinColumn(name = "subCategory_id", referencedColumnName = "id")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     SubCategory subcategory;
 
     LocalDateTime createdAt;
