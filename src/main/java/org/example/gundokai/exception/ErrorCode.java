@@ -47,7 +47,8 @@ public enum ErrorCode {
     ORDER_DETAIL_UPDATE_FAILED(2013, "Failed to update order detail", HttpStatus.INTERNAL_SERVER_ERROR),
     ORDER_DETAIL_DELETE_FAILED(2014, "Failed to delete order detail", HttpStatus.INTERNAL_SERVER_ERROR),
     ORDER_DETAIL_PRODUCT_NOT_FOUND(2015, "Product not found for order detail", HttpStatus.NOT_FOUND),
-    ORDER_DETAIL_ORDER_NOT_FOUND(2016, "Order not found for order detail", HttpStatus.NOT_FOUND);
+    ORDER_DETAIL_ORDER_NOT_FOUND(2016, "Order not found for order detail", HttpStatus.NOT_FOUND),
+    INVALID_INPUT(2017,"Invalid input", HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

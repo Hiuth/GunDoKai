@@ -22,6 +22,9 @@ public class UserCreationRequest {
     String password;
 
     @NotBlank(message = "NOT_BLANK")
+    String gender;
+
+    @NotBlank(message = "NOT_BLANK")
     @Email(message = "EMAIL_INVALID")
     String email;
 

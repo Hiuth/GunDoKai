@@ -3,10 +3,12 @@ package org.example.gundokai.service;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.example.gundokai.constant.PredefinedRole;
 import org.example.gundokai.dto.request.UserCreationRequest;
 import org.example.gundokai.dto.request.UserUpdateRequest;
+import org.example.gundokai.dto.respone.EmailResponse;
 import org.example.gundokai.dto.respone.UserResponse;
 import org.example.gundokai.entity.Role;
 import org.example.gundokai.entity.User;
@@ -17,6 +19,7 @@ import org.example.gundokai.repository.RoleRepository;
 import org.example.gundokai.repository.UserRepository;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -113,5 +116,58 @@ public class UserService {
     public UserResponse getUserById(String id) {
         return userMapper.toUserResponse(
                 userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
+    }
+
+    public void sendPasswordResetCode(String email) {
+        String trimmedEmail = email.trim();
+        log.debug("Checking if email [{}] exists for password reset", trimmedEmail);
+
+        // Kiểm tra xem email có tồn tại không
+        if (!userRepository.existsByEmail(trimmedEmail)) {
+            log.debug("Email [{}] does not exist", trimmedEmail);
+            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+        }
+
+        // Gửi mã xác nhận qua email
+        emailVerification.sendCode(trimmedEmail);
+    }
+
+    public void resetPassword(String email, String code, String newPassword) {
+        String trimmedEmail = email.trim();
+        String trimmedCode = code == null ? "" : code.trim();
+
+        // Xác minh mã
+        if (!emailVerification.verifyCode(trimmedEmail, trimmedCode)) {
+            log.debug("Password reset failed: Invalid code for email [{}]", trimmedEmail);
+            throw new AppException(ErrorCode.VERIFICATION_CODE_INVALID);
+        }
+
+        // Tìm tài khoản
+         User user = userRepository.findByEmail(trimmedEmail)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        // Mã hóa mật khẩu mới
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        user.setPassword(passwordEncoder.encode(newPassword));
+
+        // Lưu tài khoản với mật khẩu mới
+        userRepository.save(user);
+        log.debug("Password reset successful for email [{}]", trimmedEmail);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<EmailResponse> searchByEmail(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            throw new AppException(ErrorCode.INVALID_INPUT);
+        }
+        return userRepository.searchByEmail(keyword.trim())
+                .stream()
+                .map(account -> EmailResponse.builder().email(account.getEmail()).build())
+                .collect(Collectors.toList());
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public Long countUsers() {
+        return userRepository.count();
     }
 }
