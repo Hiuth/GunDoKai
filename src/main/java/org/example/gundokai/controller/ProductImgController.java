@@ -47,9 +47,9 @@ public class ProductImgController {
         return response;
     }
 
-    @GetMapping("/get/{productId}")
-    public ApiResponse<List<ProductImg>> getProductImg(@PathVariable String productId){
-        ApiResponse<List<ProductImg>> response = new ApiResponse<>();
+    @GetMapping("/getAllImg/{productId}")
+    public ApiResponse<List<ProductImgResponse>> getProductImg(@PathVariable String productId){
+        ApiResponse<List<ProductImgResponse>> response = new ApiResponse<>();
         response.setMessage("Get All Product Img");
         response.setResult(productImgService.getAllProductImg(productId));
         return response;

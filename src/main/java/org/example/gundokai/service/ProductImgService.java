@@ -65,10 +65,11 @@ public class ProductImgService {
         return "Deleted product img successfully";
     }
 
-    public List<ProductImg> getAllProductImg(String productId) {
-        if(productRepository.existsById(productId)){
+    public List<ProductImgResponse> getAllProductImg(String productId) {
+        if(!productRepository.existsById(productId)){
             throw new AppException(ErrorCode.PRODUCT_NOT_EXISTS);
         }
-        return productImgRepository.findAllByProductId(productId);
+        List<ProductImg> productImg = productImgRepository.findAllByProductId(productId);
+        return productImg.stream().map(this::convertToResponse).toList();
     }
 }

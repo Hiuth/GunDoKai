@@ -47,9 +47,9 @@ public class SubCategoryService {
                 ()-> new AppException(ErrorCode.SUB_CATEGORY_NOT_EXISTS)
         );
         if(!updateSubCategoryRequest.getSubCategoryName().isBlank()){
-            if(subCategoryRepository.existsBySubCategoryName(updateSubCategoryRequest.getSubCategoryName())) {
-                throw new AppException(ErrorCode.SUB_CATEGORY_ALREADY_EXISTS);
-            }
+//            if(subCategoryRepository.existsBySubCategoryName(updateSubCategoryRequest.getSubCategoryName())) {
+//                throw new AppException(ErrorCode.SUB_CATEGORY_ALREADY_EXISTS);
+//            }
             subCategory.setSubCategoryName(updateSubCategoryRequest.getSubCategoryName());
         }
         if(file !=null && !file.isEmpty()){
@@ -58,7 +58,7 @@ public class SubCategoryService {
         }
 
         if(!updateSubCategoryRequest.getDescription().isBlank()){
-            subCategory.setDescription(subCategory.getDescription());
+            subCategory.setDescription(updateSubCategoryRequest.getDescription());
         }
 
         if(!updateSubCategoryRequest.getMainCategoryId().isBlank()){

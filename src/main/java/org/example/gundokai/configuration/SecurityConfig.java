@@ -30,7 +30,7 @@ public class SecurityConfig {
     };
 
     private final String[] GET_ENDPOINTS = {
-            "/mainCategory/getAll" , "/subCategory/getAll/*",
+            "/mainCategory/getAll" , "/subCategory/getAll/*","/productImg/getAllImg/*","productDetail/get/*","product/getProduct/*"
     };
 
     @Autowired

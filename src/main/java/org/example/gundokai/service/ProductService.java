@@ -37,11 +37,6 @@ public class ProductService {
         }
         String productImg = fileStorageService.uploadFile(file);
         Product product = productMapper.toProduct(productCreationRequest);
-        if(productCreationRequest.getStockQuantity()!=0){
-            product.setStatus("Còn Hàng");
-        }else{
-            product.setStatus("Hết Hàng");
-        }
         product.setThumbnail(productImg);
         product.setSubcategory(subCategory);
         return productMapper.toProductResponse(productRepository.save(product));

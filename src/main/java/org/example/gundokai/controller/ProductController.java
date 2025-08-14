@@ -31,6 +31,7 @@ public class ProductController {
             @RequestParam("price") long price,
             @RequestParam("description") String description,
             @RequestParam("stockQuantity") int stockQuantity,
+            @RequestParam("status") String status,
             @RequestPart(value = "file") MultipartFile file
     ){
         ProductCreationRequest productCreationRequest = ProductCreationRequest.builder()
@@ -38,6 +39,7 @@ public class ProductController {
                 .price(price)
                 .description(description)
                 .stockQuantity(stockQuantity)
+                .status(status)
                 .build();
         ApiResponse<ProductResponse> response = new ApiResponse<>();
         response.setMessage("Product Created: "+ productName);
