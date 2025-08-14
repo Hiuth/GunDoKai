@@ -3,6 +3,8 @@ package org.example.gundokai.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
 
@@ -22,6 +24,7 @@ public class OrderDetail {
 
     @ManyToOne
     @JoinColumn(name = "product_id", referencedColumnName = "id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Product product;
 
     private Integer quantity;

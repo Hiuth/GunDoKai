@@ -88,4 +88,13 @@ public class ProductController {
         response.setResult(productService.getProductBySubCategoryId(subCategoryId));
         return response;
     }
+
+    @DeleteMapping("/delete/{productId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<String> deleteProduct(@PathVariable String productId){
+        ApiResponse<String> response = new ApiResponse<>();
+        response.setMessage("Product Deleted");
+        response.setResult(productService.deleteProduct(productId));
+        return response;
+    }
 }
