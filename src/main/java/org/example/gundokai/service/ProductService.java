@@ -43,6 +43,7 @@ public class ProductService {
         }
         String productImg = fileStorageService.uploadFile(file);
         Product product = productMapper.toProduct(productCreationRequest);
+        product.setStatus(productCreationRequest.getStatus());
         product.setThumbnail(productImg);
         product.setSubcategory(subCategory);
         return productMapper.toProductResponse(productRepository.save(product));
@@ -84,6 +85,10 @@ public class ProductService {
             throw new AppException(ErrorCode.SUB_CATEGORY_NOT_EXISTS);
         }
         return productRepository.findAllBySubcategory_Id((subCategoryId));
+    }
+
+    public List<Product> getAllProduct(){
+        return productRepository.findAll();
     }
 
     @Transactional

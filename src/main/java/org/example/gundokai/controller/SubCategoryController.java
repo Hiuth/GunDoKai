@@ -79,7 +79,6 @@ public class SubCategoryController {
         return response;
     }
 
-    @PreAuthorize( "hasRole('ADMIN')")
     @GetMapping("/getAll")
     public ApiResponse<List<SubCategory>> getSubCategory(){
         ApiResponse<List<SubCategory>> response = new ApiResponse<>();

@@ -89,6 +89,14 @@ public class ProductController {
         return response;
     }
 
+    @GetMapping("/getAll")
+    public ApiResponse<List<Product>> getAllProduct(){
+        ApiResponse<List<Product>> response = new ApiResponse<>();
+        response.setMessage("Get All Product");
+        response.setResult(productService.getAllProduct());
+        return response;
+    }
+
     @DeleteMapping("/delete/{productId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<String> deleteProduct(@PathVariable String productId){
