@@ -24,5 +24,6 @@ public class OrderResponse {
     private PaymentStatus paymentStatus;
     private List<OrderDetailResponse> orderDetails;
     private String paymentUrl;
+    private String email;
 
 }

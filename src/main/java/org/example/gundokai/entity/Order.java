@@ -25,6 +25,7 @@ public class Order {
     private User user;
     private LocalDateTime orderDate;
     private BigDecimal totalAmount;
+    private String email;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
     private String phoneNumber;

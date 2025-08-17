@@ -87,7 +87,9 @@ public class OrderService {
                 .collect(Collectors.toList());
         response.setOrderDetails(detailResponses);
 
+        // Xử lý thanh toán
         if (request.getPaymentMethod() == PaymentMethod.VNPAY) {
+            // Thanh toán VNPay
             paymentLogService.createPaymentLog(savedOrder.getId(), "VNPAY", savedOrder.getTotalAmount());
 
             String bankCode = "VNPAYQR";
@@ -102,7 +104,13 @@ public class OrderService {
             response.setPaymentUrl(paymentUrl);
             log.info("Initiated VNPAY payment for Order ID: {}, Amount: {}, URL: {}",
                     savedOrder.getId(), savedOrder.getTotalAmount(), paymentUrl);
+        } else if (request.getPaymentMethod() == PaymentMethod.COD) {
+            // Thanh toán COD
+            paymentLogService.createPaymentLog(savedOrder.getId(), "COD", savedOrder.getTotalAmount());
+            log.info("Created COD payment log for Order ID: {}, Amount: {}",
+                    savedOrder.getId(), savedOrder.getTotalAmount());
         }
+
         return response;
     }
 
@@ -178,7 +186,19 @@ public class OrderService {
         orderRepository.save(order);
         return orderMapper.toOrderResponse(order);
     }
+    @Transactional
+    public OrderResponse adminCancelOrder(String orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
+        if (order.getStatus() == OrderStatus.CANCELLED) {
+            throw new AppException(ErrorCode.ORDER_ALREADY_CANCELLED);
+        }
+
+        order.setStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+        return orderMapper.toOrderResponse(order);
+    }
     public Page<OrderResponse> getOrdersByUserId(String userId, int page, int size) {
         Page<Order> orders = orderRepository.findByUser_Id(userId, PageRequest.of(page, size));
         return orders.map(orderMapper::toOrderResponse);

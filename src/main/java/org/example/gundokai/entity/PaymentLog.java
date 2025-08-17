@@ -35,4 +35,5 @@ public class PaymentLog {
 
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
+
 }
