@@ -81,11 +81,19 @@ public class ProductController {
         return response;
     }
 
-    @GetMapping("/getProduct/{subCategoryId}")
+    @GetMapping("/getProductBySubCategory/{subCategoryId}")
     public ApiResponse<List<Product>> getProductBySubCategory(@PathVariable("subCategoryId") String subCategoryId){
         ApiResponse<List<Product>> response = new ApiResponse<>();
         response.setMessage("Get All Product By Sub Category");
         response.setResult(productService.getProductBySubCategoryId(subCategoryId));
+        return response;
+    }
+
+    @GetMapping("/getByProductId/{productId}")
+    public ApiResponse<ProductResponse> getProductById(@PathVariable String productId){
+        ApiResponse<ProductResponse> response = new ApiResponse<>();
+        response.setMessage("Get Product By Id");
+        response.setResult(productService.getProductByProductId(productId));
         return response;
     }
 
@@ -94,6 +102,14 @@ public class ProductController {
         ApiResponse<List<Product>> response = new ApiResponse<>();
         response.setMessage("Get All Product");
         response.setResult(productService.getAllProduct());
+        return response;
+    }
+
+    @GetMapping("/random")
+    public ApiResponse<List<Product>> getAllProductBySubCategory(){
+        ApiResponse<List<Product>> response = new ApiResponse<>();
+        response.setMessage("Get All Product By Sub Category");
+        response.setResult(productService.randomProduct());
         return response;
     }
 

@@ -30,8 +30,10 @@ public class SecurityConfig {
     };
 
     private final String[] GET_ENDPOINTS = {
-            "/mainCategory/getAll" , "/subCategory/getAll","/productImg/getAllImg/*","productDetail/get/*",
-            "product/getProduct/*","product/getAll","/vnpay-return","/vnpay/**"
+            "/mainCategory/getAll" , "/subCategory/getAll","/productImg/getAllImg/*","/productDetail/get/*",
+            "/product/getProductBySubCategory/*","/product/getAll","/vnpay-return","/vnpay/**","/product/random",
+            "/product/getByProductId/*","/subCategory/getSubCategoryById/*","/subCategory/getAllByCategory/*",
+            "mainCategory/getById/*"
     };
 
     @Autowired
@@ -60,9 +62,10 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:3000",
                 "http://localhost:8080",
-                "http://127.0.0.1:3000"
+                "http://127.0.0.1:3000",
+                "http://localhost:3000",
+                "http://localhost:3001"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));

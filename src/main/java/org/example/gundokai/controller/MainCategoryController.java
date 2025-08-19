@@ -67,4 +67,12 @@ public class MainCategoryController {
         response.setResult(mainCategoryService.deleteMainCategory(id));
         return response;
     }
+
+    @GetMapping("/getById/{id}")
+    public ApiResponse<MainCategoryResponse> getMainCategoryById(@PathVariable String id){
+        ApiResponse<MainCategoryResponse> response = new ApiResponse<>();
+        response.setMessage("Get Main Category By Id");
+        response.setResult(mainCategoryService.getMainCategoryById(id));
+        return response;
+    }
 }

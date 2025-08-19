@@ -86,4 +86,12 @@ public class SubCategoryController {
         response.setResult(subCategoryService.getAllSubCategory());
         return response;
     }
+
+    @GetMapping("/getSubCategoryById/{subCategoryId}")
+    public ApiResponse<SubCategoryResponse> getSubCategoryById(@PathVariable String subCategoryId){
+        ApiResponse<SubCategoryResponse> response = new ApiResponse<>();
+        response.setMessage("Get Sub Category By Id");
+        response.setResult(subCategoryService.getSubCategoryById(subCategoryId));
+        return response;
+    }
 }

@@ -64,4 +64,10 @@ public class MainCategoryService {
         }
         return "Deleted category successfully";
     }
+
+    public MainCategoryResponse getMainCategoryById(String id){
+        MainCategory mainCategory = mainCategoryRepository.findById(id).orElseThrow(
+                ()->new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+        return mainCategoryMapper.toMainCategoryResponse(mainCategory);
+    }
 }

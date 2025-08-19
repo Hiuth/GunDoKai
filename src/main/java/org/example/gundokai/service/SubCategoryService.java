@@ -96,4 +96,11 @@ public class SubCategoryService {
         }
         return "Deleted sub category successfully";
     }
+
+    public SubCategoryResponse getSubCategoryById(String subCategoryId){
+        SubCategory subCategory = subCategoryRepository.findById(subCategoryId).orElseThrow(
+                ()-> new AppException(ErrorCode.SUB_CATEGORY_NOT_EXISTS)
+        );
+        return subCategoryMapper.toSubCategoryResponse(subCategory);
+    }
 }

@@ -91,6 +91,13 @@ public class ProductService {
         return productRepository.findAll();
     }
 
+    public ProductResponse getProductByProductId(String productId){
+        if(!productRepository.existsById(productId)){
+            throw new AppException(ErrorCode.PRODUCT_NOT_EXISTS);
+        }
+        return productMapper.toProductResponse(productRepository.findById(productId).orElseThrow());
+    }
+
     @Transactional
     public String deleteProduct(String productId) {
         Product product = productRepository.findById(productId).orElseThrow(
@@ -122,5 +129,8 @@ public class ProductService {
         return "Deleted product successfully";
     }
 
+    public List<Product> randomProduct(){
+        return productRepository.findRandomProducts();
+    }
 }
 
