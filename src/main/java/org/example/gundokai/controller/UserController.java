@@ -2,13 +2,16 @@ package org.example.gundokai.controller;
 
 import java.util.List;
 
+import org.example.gundokai.dto.request.ChangePasswordRequest;
 import org.example.gundokai.dto.request.ResetPasswordRequest;
 import org.example.gundokai.dto.request.UserCreationRequest;
 import org.example.gundokai.dto.request.UserUpdateRequest;
 import org.example.gundokai.dto.respone.ApiResponse;
+import org.example.gundokai.dto.respone.ChangePasswordResponse;
 import org.example.gundokai.dto.respone.EmailResponse;
 import org.example.gundokai.dto.respone.UserResponse;
 import org.example.gundokai.service.UserService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,6 +52,7 @@ public class UserController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<List<UserResponse>> getAllUsers() {
         return ApiResponse.<List<UserResponse>>builder()
                 .result(userService.getAllUsers())
@@ -70,12 +74,14 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<String> deleteUser(@PathVariable String userId) {
         userService.deleteUser(userId);
         return ApiResponse.<String>builder().result("User has been deleted").build();
     }
 
     @PutMapping("/my-profile")
+    @PreAuthorize("hasRole('USER')")
     ApiResponse<UserResponse> updateMyProfile(@RequestBody UserUpdateRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.updateMyProfile(request))
@@ -99,6 +105,7 @@ public class UserController {
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<List<EmailResponse>> searchByEmail(@RequestParam("keyword") String keyword) {
         List<EmailResponse> result = userService.searchByEmail(keyword);
         return ApiResponse.<List<EmailResponse>>builder()
@@ -107,9 +114,18 @@ public class UserController {
     }
 
     @GetMapping("/count")
+    @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<Long> getUserCount() {
         return ApiResponse.<Long>builder()
                 .result(userService.countUsers())
+                .build();
+    }
+
+    @PutMapping("/change-password")
+    @PreAuthorize("hasRole('USER')")
+    public ApiResponse<ChangePasswordResponse> changePassword(@RequestBody @Valid ChangePasswordRequest request) {
+        return ApiResponse.<ChangePasswordResponse>builder()
+                .result(userService.changePassword(request))
                 .build();
     }
 }

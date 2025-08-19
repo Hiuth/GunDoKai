@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.example.gundokai.constant.PredefinedRole;
+import org.example.gundokai.dto.request.ChangePasswordRequest;
 import org.example.gundokai.dto.request.UserCreationRequest;
 import org.example.gundokai.dto.request.UserUpdateRequest;
+import org.example.gundokai.dto.respone.ChangePasswordResponse;
 import org.example.gundokai.dto.respone.EmailResponse;
 import org.example.gundokai.dto.respone.UserResponse;
 import org.example.gundokai.entity.Role;
@@ -101,18 +103,15 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     public void deleteUser(String userId) {
         userRepository.deleteById(userId);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponse> getAllUsers() {
         log.info("In method get Users");
         return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse getUserById(String id) {
         return userMapper.toUserResponse(
                 userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
@@ -155,7 +154,6 @@ public class UserService {
         log.debug("Password reset successful for email [{}]", trimmedEmail);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     public List<EmailResponse> searchByEmail(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
             throw new AppException(ErrorCode.INVALID_INPUT);
@@ -166,8 +164,43 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     public Long countUsers() {
         return userRepository.count();
+    }
+
+
+    public ChangePasswordResponse changePassword(ChangePasswordRequest request) {
+        var context = SecurityContextHolder.getContext();
+        String currentUserEmail = context.getAuthentication().getName();
+
+        log.debug("Attempting to change password for user: {}", currentUserEmail);
+
+        // Tìm user hiện tại
+        User user = userRepository.findByEmail(currentUserEmail)
+                .orElseGet(() -> userRepository.findByUsername(currentUserEmail)
+                        .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
+
+        // Kiểm tra mật khẩu hiện tại
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            log.debug("Current password verification failed for user: {}", currentUserEmail);
+            throw new AppException(ErrorCode.WRONG_PASSWORD);
+        }
+
+        // Kiểm tra mật khẩu mới không được giống mật khẩu cũ
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+            log.debug("New password is the same as current password for user: {}", currentUserEmail);
+            throw new AppException(ErrorCode.SAME_PASSWORD);
+        }
+
+        // Cập nhật mật khẩu mới
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        log.info("Password changed successfully for user: {}", currentUserEmail);
+
+        return ChangePasswordResponse.builder()
+                .success(true)
+                .message("Đổi mật khẩu thành công")
+                .build();
     }
 }
