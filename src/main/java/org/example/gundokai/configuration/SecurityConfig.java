@@ -25,7 +25,7 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/users/send-code",  "/users","/users/request-password-reset", "/accounts/reset-password",
+            "/users/send-code",  "/users","/users/request-password-reset", "/users/reset-password",
             "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh"
     };
 
