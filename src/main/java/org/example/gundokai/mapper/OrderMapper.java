@@ -22,6 +22,7 @@ public interface OrderMapper {
             @Mapping(target = "user", ignore = true),
             @Mapping(source = "total", target = "totalAmount"),
             @Mapping(source = "customerName", target = "customerName"),
+            @Mapping(source = "email", target = "email"),
             @Mapping(source = "phoneNumber", target = "phoneNumber"),
             @Mapping(source = "address", target = "address"),
             @Mapping(target = "orderDetails", ignore = true)
@@ -32,12 +33,14 @@ public interface OrderMapper {
             @Mapping(source = "id", target = "orderId"),
             @Mapping(source = "user.id", target = "userId"),
             @Mapping(source = "customerName", target = "customerName"),
+            @Mapping(source = "email", target = "email"),
             @Mapping(source = "phoneNumber", target = "phoneNumber"),
             @Mapping(source = "address", target = "address"),
             @Mapping(source = "orderDate", target = "orderDate"),
             @Mapping(source = "totalAmount", target = "totalAmount"),
             @Mapping(source = "status", target = "status"),
             @Mapping(source = "paymentMethod", target = "paymentMethod"),
+            @Mapping(source = "paymentStatus", target = "paymentStatus"),
             @Mapping(source = "orderDetails", target = "orderDetails")
     })
     OrderResponse toOrderResponse(Order order);

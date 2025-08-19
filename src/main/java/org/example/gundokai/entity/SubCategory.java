@@ -3,6 +3,8 @@ package org.example.gundokai.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Data
@@ -21,5 +23,6 @@ public class SubCategory {
     String description;
     @ManyToOne
     @JoinColumn(name = "mainCategory_id", referencedColumnName = "id")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     MainCategory mainCategory;
 }

@@ -3,6 +3,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.example.gundokai.enums.OrderStatus;
 import org.example.gundokai.enums.PaymentMethod;
+import org.example.gundokai.enums.PaymentStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,5 +21,9 @@ public class OrderResponse {
     private BigDecimal totalAmount;
     private OrderStatus status;
     private PaymentMethod paymentMethod;
+    private PaymentStatus paymentStatus;
     private List<OrderDetailResponse> orderDetails;
+    private String paymentUrl;
+    private String email;
+
 }

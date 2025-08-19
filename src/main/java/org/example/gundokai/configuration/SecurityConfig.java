@@ -26,7 +26,12 @@ public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
             "/users/send-code",  "/users","/users/request-password-reset", "/users/reset-password",
-            "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh"
+            "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh",
+    };
+
+    private final String[] GET_ENDPOINTS = {
+            "/mainCategory/getAll" , "/subCategory/getAll","/productImg/getAllImg/*","productDetail/get/*",
+            "product/getProduct/*","product/getAll","/vnpay-return","/vnpay/**"
     };
 
     @Autowired
@@ -34,8 +39,9 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
-                .permitAll()
+        httpSecurity.authorizeHttpRequests(request -> request
+                .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+                .requestMatchers(HttpMethod.GET, GET_ENDPOINTS).permitAll()
                 .anyRequest()
                 .authenticated());
 

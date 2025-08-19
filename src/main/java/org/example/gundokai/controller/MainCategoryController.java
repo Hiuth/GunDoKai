@@ -36,6 +36,7 @@ public class MainCategoryController {
         return response;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(value = "/update/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<MainCategoryResponse> updateMainCategory(
             @PathVariable("id") String id,
@@ -55,6 +56,15 @@ public class MainCategoryController {
         ApiResponse<List<MainCategory>> response = new ApiResponse<>();
         response.setMessage("Get All Main Category");
         response.setResult(mainCategoryService.GetAllMainCategory());
+        return response;
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/delete/{id}")
+    public ApiResponse<String> deleteMainCategory(@PathVariable String id){
+        ApiResponse<String> response = new ApiResponse<>();
+        response.setMessage("Main Category Deleted");
+        response.setResult(mainCategoryService.deleteMainCategory(id));
         return response;
     }
 }

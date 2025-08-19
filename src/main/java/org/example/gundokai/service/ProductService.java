@@ -16,7 +16,11 @@ import org.example.gundokai.repository.ProductRepository;
 import org.example.gundokai.repository.SubCategoryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
+import jakarta.transaction.Transactional;
+import org.example.gundokai.entity.ProductDetail;
+import org.example.gundokai.entity.ProductImg;
+import org.example.gundokai.repository.ProductDetailRepository;
+import org.example.gundokai.repository.ProductImgRepository;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -27,6 +31,8 @@ public class ProductService {
     ProductMapper productMapper;
     FileStorageService fileStorageService;
     SubCategoryRepository subCategoryRepository;
+    ProductDetailRepository productDetailRepository;
+    ProductImgRepository productImgRepository;
 
     public ProductResponse createProduct(String subCategoryId, ProductCreationRequest productCreationRequest, MultipartFile file) {
         SubCategory subCategory = subCategoryRepository.findById(subCategoryId).orElseThrow(
@@ -37,11 +43,7 @@ public class ProductService {
         }
         String productImg = fileStorageService.uploadFile(file);
         Product product = productMapper.toProduct(productCreationRequest);
-        if(productCreationRequest.getStockQuantity()!=0){
-            product.setStatus("Còn Hàng");
-        }else{
-            product.setStatus("Hết Hàng");
-        }
+        product.setStatus(productCreationRequest.getStatus());
         product.setThumbnail(productImg);
         product.setSubcategory(subCategory);
         return productMapper.toProductResponse(productRepository.save(product));
@@ -84,5 +86,41 @@ public class ProductService {
         }
         return productRepository.findAllBySubcategory_Id((subCategoryId));
     }
+
+    public List<Product> getAllProduct(){
+        return productRepository.findAll();
+    }
+
+    @Transactional
+    public String deleteProduct(String productId) {
+        Product product = productRepository.findById(productId).orElseThrow(
+                ()-> new AppException(ErrorCode.PRODUCT_NOT_EXISTS)
+        );
+
+        // Xóa tất cả ProductImg liên quan
+        List<ProductImg> productImgs = productImgRepository.findAllByProductId(productId);
+        for (ProductImg productImg : productImgs) {
+            fileStorageService.deleteFile(productImg.getProductImg());
+            productImgRepository.delete(productImg);
+        }
+        // Xóa ProductDetail liên quan
+        ProductDetail productDetail = productDetailRepository.findByProductId(productId);
+        if (productDetail != null) {
+            productDetailRepository.delete(productDetail);
+        }
+        // Xóa thumbnail của product
+        if (product.getThumbnail() != null) {
+            fileStorageService.deleteFile(product.getThumbnail());
+        }
+
+        // Xóa product
+        productRepository.delete(product);
+
+        if (productRepository.existsById(productId)) {
+            return "Deleted product failed";
+        }
+        return "Deleted product successfully";
+    }
+
 }
 

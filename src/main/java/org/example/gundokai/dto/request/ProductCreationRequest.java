@@ -22,5 +22,7 @@ public class ProductCreationRequest {
     @NotBlank(message = "NOT_NULL")
     int stockQuantity;
 
+    String status;
+
     String description;
 }

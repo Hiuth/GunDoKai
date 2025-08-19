@@ -7,6 +7,7 @@ import org.example.gundokai.dto.respone.ApiResponse;
 import org.example.gundokai.dto.respone.ProductImgResponse;
 import org.example.gundokai.entity.ProductImg;
 import org.example.gundokai.service.ProductImgService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +20,7 @@ import java.util.List;
 public class ProductImgController {
     ProductImgService productImgService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create/{productId}")
     public ApiResponse<ProductImgResponse> createProductImg(@PathVariable String productId, @RequestParam("file") MultipartFile productImg){
         ApiResponse<ProductImgResponse> response = new ApiResponse<>();
@@ -27,6 +29,7 @@ public class ProductImgController {
         return response;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update/{productImgId}")
     public ApiResponse<ProductImgResponse> updateProductImg(@PathVariable String productImgId, @RequestParam("file") MultipartFile productImg){
         ApiResponse<ProductImgResponse> response = new ApiResponse<>();
@@ -35,6 +38,7 @@ public class ProductImgController {
         return response;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete/{productImgId}")
     public ApiResponse<String> deleteProductImg(@PathVariable String productImgId){
         ApiResponse<String> response = new ApiResponse<>();
@@ -43,9 +47,9 @@ public class ProductImgController {
         return response;
     }
 
-    @GetMapping("/get/{productId}")
-    public ApiResponse<List<ProductImg>> getProductImg(@PathVariable String productId){
-        ApiResponse<List<ProductImg>> response = new ApiResponse<>();
+    @GetMapping("/getAllImg/{productId}")
+    public ApiResponse<List<ProductImgResponse>> getProductImg(@PathVariable String productId){
+        ApiResponse<List<ProductImgResponse>> response = new ApiResponse<>();
         response.setMessage("Get All Product Img");
         response.setResult(productImgService.getAllProductImg(productId));
         return response;

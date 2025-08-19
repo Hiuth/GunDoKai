@@ -3,6 +3,7 @@ package org.example.gundokai.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.example.gundokai.dto.request.OrderDetailRequest;
 import org.example.gundokai.dto.request.OrderRequest;
 import org.example.gundokai.dto.respone.OrderResponse;
@@ -17,6 +18,7 @@ import org.example.gundokai.mapper.OrderDetailMapper;
 import org.example.gundokai.mapper.OrderMapper;
 import org.example.gundokai.repository.*;
 import org.example.gundokai.util.SecurityUtil;
+import org.example.gundokai.util.VNPayPaymentUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -26,7 +28,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
+@Slf4j
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
@@ -36,7 +38,7 @@ public class OrderService {
     OrderDetailRepository orderDetailRepository;
     ProductRepository productRepository;
     UserRepository userRepository;
-
+    PaymentLogService paymentLogService;
     OrderMapper orderMapper;
     OrderDetailMapper orderDetailMapper;
 
@@ -51,7 +53,7 @@ public class OrderService {
         order.setUser(user);
         order.setStatus(OrderStatus.PENDING);
         order.setPaymentMethod(request.getPaymentMethod());
-
+        order.setPaymentStatus(PaymentStatus.PENDING);
         orderRepository.save(order);
 
         // Thêm OrderDetails nếu có
@@ -84,6 +86,30 @@ public class OrderService {
                 .map(orderDetailMapper::toOrderDetailResponse)
                 .collect(Collectors.toList());
         response.setOrderDetails(detailResponses);
+
+        // Xử lý thanh toán
+        if (request.getPaymentMethod() == PaymentMethod.VNPAY) {
+            // Thanh toán VNPay
+            paymentLogService.createPaymentLog(savedOrder.getId(), "VNPAY", savedOrder.getTotalAmount());
+
+            String bankCode = "VNPAYQR";
+            String ipAddress = "127.0.0.1"; // TODO: lấy IP thực từ request nếu controller xử lý
+            String paymentUrl = VNPayPaymentUtil.generateVnpayPaymentUrl(
+                    savedOrder.getId(),
+                    savedOrder.getTotalAmount(),
+                    bankCode,
+                    ipAddress
+            );
+
+            response.setPaymentUrl(paymentUrl);
+            log.info("Initiated VNPAY payment for Order ID: {}, Amount: {}, URL: {}",
+                    savedOrder.getId(), savedOrder.getTotalAmount(), paymentUrl);
+        } else if (request.getPaymentMethod() == PaymentMethod.COD) {
+            // Thanh toán COD
+            paymentLogService.createPaymentLog(savedOrder.getId(), "COD", savedOrder.getTotalAmount());
+            log.info("Created COD payment log for Order ID: {}, Amount: {}",
+                    savedOrder.getId(), savedOrder.getTotalAmount());
+        }
 
         return response;
     }
@@ -160,7 +186,19 @@ public class OrderService {
         orderRepository.save(order);
         return orderMapper.toOrderResponse(order);
     }
+    @Transactional
+    public OrderResponse adminCancelOrder(String orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
+        if (order.getStatus() == OrderStatus.CANCELLED) {
+            throw new AppException(ErrorCode.ORDER_ALREADY_CANCELLED);
+        }
+
+        order.setStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+        return orderMapper.toOrderResponse(order);
+    }
     public Page<OrderResponse> getOrdersByUserId(String userId, int page, int size) {
         Page<Order> orders = orderRepository.findByUser_Id(userId, PageRequest.of(page, size));
         return orders.map(orderMapper::toOrderResponse);
@@ -185,4 +223,12 @@ public class OrderService {
                 .map(OrderDetail::getSubTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
+    @Transactional
+    public void updatePaymentStatus(String orderId, PaymentStatus paymentStatus) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        order.setPaymentStatus(paymentStatus);
+        orderRepository.save(order);
+    }
+
 }

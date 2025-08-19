@@ -47,9 +47,9 @@ public class SubCategoryService {
                 ()-> new AppException(ErrorCode.SUB_CATEGORY_NOT_EXISTS)
         );
         if(!updateSubCategoryRequest.getSubCategoryName().isBlank()){
-            if(subCategoryRepository.existsBySubCategoryName(updateSubCategoryRequest.getSubCategoryName())) {
-                throw new AppException(ErrorCode.SUB_CATEGORY_ALREADY_EXISTS);
-            }
+//            if(subCategoryRepository.existsBySubCategoryName(updateSubCategoryRequest.getSubCategoryName())) {
+//                throw new AppException(ErrorCode.SUB_CATEGORY_ALREADY_EXISTS);
+//            }
             subCategory.setSubCategoryName(updateSubCategoryRequest.getSubCategoryName());
         }
         if(file !=null && !file.isEmpty()){
@@ -58,7 +58,7 @@ public class SubCategoryService {
         }
 
         if(!updateSubCategoryRequest.getDescription().isBlank()){
-            subCategory.setDescription(subCategory.getDescription());
+            subCategory.setDescription(updateSubCategoryRequest.getDescription());
         }
 
         if(!updateSubCategoryRequest.getMainCategoryId().isBlank()){
@@ -76,5 +76,24 @@ public class SubCategoryService {
             throw new AppException(ErrorCode.CATEGORY_NOT_EXISTS);
         }
         return subCategoryRepository.findAllByMainCategoryId(mainCategoryId);
+    }
+
+    public List<SubCategory> getAllSubCategory(){
+        if(subCategoryRepository.findAll().isEmpty()){
+            throw new AppException(ErrorCode.LIST_EMPTY);
+        }
+        return subCategoryRepository.findAll();
+    }
+
+    public String deleteSubCategory(String subCategoryId){
+        SubCategory subCategory = subCategoryRepository.findById(subCategoryId).orElseThrow(
+                ()-> new AppException(ErrorCode.SUB_CATEGORY_NOT_EXISTS)
+        );
+        fileStorageService.deleteFile(subCategory.getSubCategoryImg());
+        subCategoryRepository.delete(subCategory);
+        if(subCategoryRepository.existsById(subCategoryId)){
+            return "Deleted sub category failed";
+        }
+        return "Deleted sub category successfully";
     }
 }
