@@ -8,6 +8,7 @@ import org.example.gundokai.dto.respone.ApiResponse;
 import org.example.gundokai.dto.respone.OrderDetailResponse;
 import org.example.gundokai.service.OrderDetailService;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class OrderDetailController {
     OrderDetailService orderDetailService;
 
     // 1. Tạo chi tiết đơn hàng (yêu cầu orderId trong URL)
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PostMapping(value = "/{orderId}/create", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ApiResponse<OrderDetailResponse> createOrderDetail(
             @PathVariable String orderId,
@@ -34,6 +36,7 @@ public class OrderDetailController {
     }
 
     // 2. Lấy chi tiết đơn hàng theo ID (yêu cầu orderId trong URL)
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/{orderId}/{detailId}")
     public ApiResponse<OrderDetailResponse> getOrderDetailById(
             @PathVariable String orderId,
@@ -48,6 +51,7 @@ public class OrderDetailController {
     }
 
     // 3. Lấy tất cả chi tiết của một đơn hàng
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/{orderId}")
     public ApiResponse<List<OrderDetailResponse>> getOrderDetailsByOrderId(@PathVariable String orderId) {
         ApiResponse<List<OrderDetailResponse>> response = new ApiResponse<>();
@@ -57,6 +61,8 @@ public class OrderDetailController {
     }
 
     // 4. Cập nhật chi tiết đơn hàng (yêu cầu orderId trong URL)
+    @PreAuthorize("hasRole('ADMIN')")
+
     @PutMapping(value = "/{orderId}/update/{detailId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ApiResponse<OrderDetailResponse> updateOrderDetail(
             @PathVariable String orderId,
@@ -71,6 +77,7 @@ public class OrderDetailController {
     }
 
     // 5. Xoá chi tiết đơn hàng (yêu cầu orderId trong URL)
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{orderId}/delete/{detailId}")
     public ApiResponse<Void> deleteOrderDetail(
             @PathVariable String orderId,

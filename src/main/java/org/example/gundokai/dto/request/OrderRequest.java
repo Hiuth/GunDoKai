@@ -18,5 +18,6 @@ public class OrderRequest {
     private String phoneNumber;
     private String address;
     private String customerName;
+    private String email;
     private List<OrderDetailRequest> items;
 }

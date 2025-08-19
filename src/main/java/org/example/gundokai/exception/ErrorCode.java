@@ -48,7 +48,15 @@ public enum ErrorCode {
     ORDER_DETAIL_DELETE_FAILED(2014, "Failed to delete order detail", HttpStatus.INTERNAL_SERVER_ERROR),
     ORDER_DETAIL_PRODUCT_NOT_FOUND(2015, "Product not found for order detail", HttpStatus.NOT_FOUND),
     ORDER_DETAIL_ORDER_NOT_FOUND(2016, "Order not found for order detail", HttpStatus.NOT_FOUND),
-    INVALID_INPUT(2017,"Invalid input", HttpStatus.BAD_REQUEST);
+    PAYMENT_INVALID_CHECKSUM(3001, "Invalid checksum from payment gateway", HttpStatus.BAD_REQUEST),
+    PAYMENT_AMOUNT_MISMATCH(3002, "Amount does not match order", HttpStatus.BAD_REQUEST),
+    PAYMENT_TRANSACTION_FAILED(3003, "Payment transaction failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    PAYMENT_DUPLICATE_CALLBACK(3004, "Payment has already been processed", HttpStatus.BAD_REQUEST),
+    PAYMENT_ORDER_NOT_FOUND(3005, "Order not found for payment", HttpStatus.NOT_FOUND),
+    PAYMENT_METHOD_NOT_SUPPORTED(3006, "Payment method not supported", HttpStatus.BAD_REQUEST),
+    PAYMENT_NOT_SUCCESSFUL(3007, "Payment was not successful", HttpStatus.BAD_REQUEST),
+    PAYMENT_LOG_FAILED(3008, "Failed to log payment transaction", HttpStatus.INTERNAL_SERVER_ERROR);
+
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

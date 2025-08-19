@@ -1,5 +1,5 @@
 package org.example.gundokai.enums;
 
 public enum PaymentStatus {
-    PENDING, PAID, FAILED, CANCELLED
+    PENDING, PAID, FAILED, CANCELLED,CONFIRMED
 }
