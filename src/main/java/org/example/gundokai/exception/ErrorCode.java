@@ -55,7 +55,9 @@ public enum ErrorCode {
     PAYMENT_ORDER_NOT_FOUND(3005, "Order not found for payment", HttpStatus.NOT_FOUND),
     PAYMENT_METHOD_NOT_SUPPORTED(3006, "Payment method not supported", HttpStatus.BAD_REQUEST),
     PAYMENT_NOT_SUCCESSFUL(3007, "Payment was not successful", HttpStatus.BAD_REQUEST),
-    PAYMENT_LOG_FAILED(3008, "Failed to log payment transaction", HttpStatus.INTERNAL_SERVER_ERROR);
+    PAYMENT_LOG_FAILED(3008, "Failed to log payment transaction", HttpStatus.INTERNAL_SERVER_ERROR),
+    INVALID_INPUT(4001, "Invalid input", HttpStatus.BAD_REQUEST);
+
 
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
