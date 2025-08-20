@@ -10,6 +10,7 @@ import org.example.gundokai.dto.respone.OrderResponse;
 import org.example.gundokai.enums.OrderStatus;
 import org.example.gundokai.enums.PaymentMethod;
 import org.example.gundokai.service.OrderService;
+import org.example.gundokai.util.SecurityUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,7 +28,7 @@ public class OrderController {
     OrderService orderService;
 
     // 1. Tạo đơn hàng
-//    @PreAuthorize("hasAuthority('CREATE_ORDER')")
+
     @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ApiResponse<OrderResponse> createOrder(@RequestBody OrderRequest orderRequest) {
         ApiResponse<OrderResponse> response = new ApiResponse<>();
@@ -38,7 +39,7 @@ public class OrderController {
 
 
     // 2. Lấy đơn hàng theo ID
-    @PreAuthorize("hasAnyAuthority('READ_ORDER', 'ADMIN_READ_ORDER')")
+//    @PreAuthorize("hasAnyAuthority('READ_ORDER', 'ADMIN_READ_ORDER')")
     @GetMapping("/{orderId}")
     public ApiResponse<OrderResponse> getOrderById(@PathVariable String orderId) {
         ApiResponse<OrderResponse> response = new ApiResponse<>();
@@ -62,6 +63,24 @@ public class OrderController {
         return response;
     }
 
+    @PreAuthorize("hasAuthority('READ_ORDER')")
+    // Backend Controller
+    @GetMapping("/history")
+    public ApiResponse<Page<OrderResponse>> getOrderHistory(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        String userId = SecurityUtil.getUserId();
+
+        ApiResponse<Page<OrderResponse>> response = new ApiResponse<>();
+        response.setMessage("Order history for current user");
+
+        // Đảm bảo trả về Page object, không phải List
+        Page<OrderResponse> pageOrders = orderService.getOrdersByUserId(userId, page, size);
+
+        response.setResult(pageOrders); // Trả về Page, không phải List
+        return response;
+    }
 
 
     // 4. Admin lấy tất cả đơn hàng (có filter trạng thái)
