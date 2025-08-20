@@ -113,6 +113,14 @@ public class ProductController {
         return response;
     }
 
+    @GetMapping("/search")
+    public ApiResponse<List<Product>> searchProduct(@RequestParam String q){
+        ApiResponse<List<Product>> response = new ApiResponse<>();
+        response.setMessage("Search Product");
+        response.setResult(productService.getProductByName(q));
+        return response;
+    }
+
     @DeleteMapping("/delete/{productId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<String> deleteProduct(@PathVariable String productId){

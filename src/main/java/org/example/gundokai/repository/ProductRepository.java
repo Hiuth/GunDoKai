@@ -14,7 +14,9 @@ public interface ProductRepository extends JpaRepository<Product,String> {
     List<Product> findAllBySubcategory_Id(String subCategoryId);
 
     // Lấy 5 sản phẩm ngẫu nhiên
-    @Query(value = "SELECT * FROM product ORDER BY RAND() LIMIT 5", nativeQuery = true)
+    @Query(value = "SELECT * FROM product WHERE stock_quantity > 0 ORDER BY RAND() LIMIT 5", nativeQuery = true)
     List<Product> findRandomProducts();
 
+    @Query("select c from Product c where c.productName like %:KeyWord%")
+    List<Product> findProductByKeyWord(String KeyWord);
 }

@@ -132,5 +132,9 @@ public class ProductService {
     public List<Product> randomProduct(){
         return productRepository.findRandomProducts();
     }
+
+    public List<Product> getProductByName(String name){
+        return productRepository.findProductByKeyWord(name);
+    }
 }
 
