@@ -98,6 +98,22 @@ public class ProductService {
         return productMapper.toProductResponse(productRepository.findById(productId).orElseThrow());
     }
 
+    public List<Product> randomProduct(){
+        return productRepository.findRandomProducts();
+    }
+
+    public List<Product> getProductByName(String name){
+        return productRepository.findProductByKeyWord(name);
+    }
+
+    public List<Product> getTop5NewestProducts(){
+        return productRepository.findTop5NewestProducts();
+    }
+
+    public List<Product> getTop5ProductsWithLowestStock(){
+        return productRepository.findTop5ProductsWithLowestStock();
+    }
+
     @Transactional
     public String deleteProduct(String productId) {
         Product product = productRepository.findById(productId).orElseThrow(
@@ -129,12 +145,5 @@ public class ProductService {
         return "Deleted product successfully";
     }
 
-    public List<Product> randomProduct(){
-        return productRepository.findRandomProducts();
-    }
-
-    public List<Product> getProductByName(String name){
-        return productRepository.findProductByKeyWord(name);
-    }
 }
 

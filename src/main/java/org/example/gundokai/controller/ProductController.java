@@ -121,6 +121,22 @@ public class ProductController {
         return response;
     }
 
+    @GetMapping("/getTop5Newest")
+    public ApiResponse<List<Product>> getTop5NewestProduct(){
+        ApiResponse<List<Product>> response = new ApiResponse<>();
+        response.setMessage("Get Top 5 Newest Product");
+        response.setResult(productService.getTop5NewestProducts());
+        return response;
+    }
+
+    @GetMapping("/getTop5BestSeller")
+    public ApiResponse<List<Product>> getTop5BestSellerProduct(){
+        ApiResponse<List<Product>> response = new ApiResponse<>();
+        response.setMessage("Get Top 5 Best Seller Product");
+        response.setResult(productService.getTop5ProductsWithLowestStock());
+        return response;
+    }
+
     @DeleteMapping("/delete/{productId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<String> deleteProduct(@PathVariable String productId){

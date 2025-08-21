@@ -33,7 +33,7 @@ public class SecurityConfig {
             "/mainCategory/getAll" , "/subCategory/getAll","/productImg/getAllImg/*","/productDetail/get/*",
             "/product/getProductBySubCategory/*","/product/getAll","/vnpay-return","/vnpay/**","/product/random",
             "/product/getByProductId/*","/subCategory/getSubCategoryById/*","/subCategory/getAllByCategory/*",
-            "/mainCategory/getById/*","/product/search"
+            "/mainCategory/getById/*","/product/search","/product/getTop5Newest","/product/getTop5BestSeller"
     };
 
     @Autowired

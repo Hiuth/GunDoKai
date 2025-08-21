@@ -19,4 +19,10 @@ public interface ProductRepository extends JpaRepository<Product,String> {
 
     @Query("select c from Product c where c.productName like %:KeyWord%")
     List<Product> findProductByKeyWord(String KeyWord);
+
+    @Query( "SELECT c FROM Product c ORDER BY c.createdAt DESC LIMIT 5")
+    List<Product> findTop5NewestProducts();
+
+    @Query( "SELECT c FROM Product c WHERE c.stockQuantity > 0 ORDER BY c.stockQuantity ASC LIMIT 5")
+    List<Product> findTop5ProductsWithLowestStock();
 }
