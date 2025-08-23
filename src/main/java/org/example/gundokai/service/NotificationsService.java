@@ -54,8 +54,18 @@ public class NotificationsService {
         Notifications notifications = notificationsRepository.findById(notificationId).orElseThrow(
                 ()-> new AppException(ErrorCode.NOTIFICATION_NOT_FOUND)
         );
+        
+        // Debug log trước khi update
+        System.out.println("Before update - ID: " + notificationId + 
+                         ", is_read: " + notifications.is_read());
+        
         notifications.set_read(true);
-        notificationsRepository.save(notifications);
+        Notifications saved = notificationsRepository.save(notifications);
+        
+        // Debug log sau khi update
+        System.out.println("After update - ID: " + notificationId + 
+                         ", is_read: " + saved.is_read());
+        
         return "Marked as read successfully";
     }
 }

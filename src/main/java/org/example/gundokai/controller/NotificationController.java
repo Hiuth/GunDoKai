@@ -7,10 +7,7 @@ import org.example.gundokai.dto.respone.ApiResponse;
 import org.example.gundokai.dto.respone.NotificationsResponse;
 import org.example.gundokai.service.NotificationsService;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,7 +28,7 @@ public class NotificationController {
         return response;
     }
     @PreAuthorize("hasAuthority('READ_NOTIFICATIONS')")
-    @GetMapping("/markAsRead/{notificationId}")
+    @PutMapping("/markAsRead/{notificationId}")
     public ApiResponse<String> markAsRead(@PathVariable String notificationId){
         ApiResponse<String> response = new ApiResponse<>();
         response.setMessage("Mark As Read");
