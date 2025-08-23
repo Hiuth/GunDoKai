@@ -11,5 +11,6 @@ public interface NotificationsMapper {
     Notifications toNotifications(NotificationsRequest notificationsRequest);
 
     @Mapping(target = "user_id", source = "user.id")
+    @Mapping(source = "readOrNot", target = "readOrNot")
     NotificationsResponse toNotificationsResponse(Notifications notifications);
 }

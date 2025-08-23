@@ -12,10 +12,10 @@ public class VnpayConfig {
     public static final String VNP_PAY_URL = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
 
     // URL return của bạn
-    public static final String VNP_RETURN_URL = "https://4f13e53a44fb.ngrok-free.app/vnpay-return";
+    public static final String VNP_RETURN_URL = "https://b7cca48f3243.ngrok-free.app/vnpay-return";
 
     // Có thể thêm IPN URL nếu cần
-    public static final String VNP_IPN_URL = "https://4f13e53a44fb.ngrok-free.app/vnpay-ipn";
+    public static final String VNP_IPN_URL = "https://b7cca48f3243.ngrok-free.app/vnpay-ipn";
 
     public static String hmacSHA512(final String key, final String data) {
         try {

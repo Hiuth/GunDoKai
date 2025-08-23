@@ -14,6 +14,7 @@ import org.example.gundokai.repository.NotificationsRepository;
 import org.example.gundokai.repository.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,7 +40,7 @@ public class NotificationsService {
                 ()-> new AppException(ErrorCode.USER_NOT_EXISTED)
         );
         Notifications notifications = notificationsMapper.toNotifications(notificationsRequest);
-        notifications.set_read(false);
+        notifications.setReadOrNot(false);
         notifications.setUser(user);
         notifications.setMessage(notificationsRequest.getMessage());
         return notificationsMapper.toNotificationsResponse( notificationsRepository.save(notifications));
@@ -47,25 +48,31 @@ public class NotificationsService {
 
     public List<NotificationsResponse> getAllNotifications() {
         List<Notifications> notifications = notificationsRepository.findAllByUserId(getAccountIdFromContext());
-        return notifications.stream().map(notificationsMapper::toNotificationsResponse).collect(Collectors.toList());
+        
+        // Debug log để kiểm tra dữ liệu từ database
+        notifications.forEach(notification -> {
+            System.out.println("From DB - ID: " + notification.getId() + ", readOrNot: " + notification.isReadOrNot());
+        });
+        
+        List<NotificationsResponse> responses = notifications.stream()
+                .map(notificationsMapper::toNotificationsResponse)
+                .collect(Collectors.toList());
+        
+        // Debug log để kiểm tra dữ liệu sau khi mapping
+        responses.forEach(response -> {
+            System.out.println("After mapping - ID: " + response.getId() + ", readOrNot: " + response.isReadOrNot());
+        });
+        
+        return responses;
     }
 
-    public String markAsRead(String notificationId) {
+    @Transactional
+    public NotificationsResponse markAsRead(String notificationId) {
         Notifications notifications = notificationsRepository.findById(notificationId).orElseThrow(
                 ()-> new AppException(ErrorCode.NOTIFICATION_NOT_FOUND)
         );
-        
-        // Debug log trước khi update
-        System.out.println("Before update - ID: " + notificationId + 
-                         ", is_read: " + notifications.is_read());
-        
-        notifications.set_read(true);
+        notifications.setReadOrNot(true);
         Notifications saved = notificationsRepository.save(notifications);
-        
-        // Debug log sau khi update
-        System.out.println("After update - ID: " + notificationId + 
-                         ", is_read: " + saved.is_read());
-        
-        return "Marked as read successfully";
+        return notificationsMapper.toNotificationsResponse(saved);
     }
 }

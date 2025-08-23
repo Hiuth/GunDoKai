@@ -26,7 +26,7 @@ public class Notifications {
 
     String message;
 
-    boolean is_read;
+    boolean readOrNot;
 
     LocalDateTime sent_at;
     @PrePersist

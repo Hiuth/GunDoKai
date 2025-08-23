@@ -29,8 +29,8 @@ public class NotificationController {
     }
     @PreAuthorize("hasAuthority('READ_NOTIFICATIONS')")
     @PutMapping("/markAsRead/{notificationId}")
-    public ApiResponse<String> markAsRead(@PathVariable String notificationId){
-        ApiResponse<String> response = new ApiResponse<>();
+    public ApiResponse<NotificationsResponse> markAsRead(@PathVariable String notificationId){
+        ApiResponse<NotificationsResponse> response = new ApiResponse<>();
         response.setMessage("Mark As Read");
         response.setResult(notificationsService.markAsRead(notificationId));
         return response;

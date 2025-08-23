@@ -17,7 +17,6 @@ public class NotificationsResponse {
     String id;
     String user_id;
     String message;
-    @JsonProperty("is_read")
-    boolean is_read;
+    boolean readOrNot;
     LocalDateTime sent_at;
 }
