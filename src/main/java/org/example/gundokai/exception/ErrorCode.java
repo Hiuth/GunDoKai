@@ -59,6 +59,7 @@ public enum ErrorCode {
     INVALID_INPUT(4001, "Invalid input", HttpStatus.BAD_REQUEST),
     WRONG_PASSWORD(1009, "Current password is incorrect", HttpStatus.BAD_REQUEST),
     NOTIFICATION_NOT_FOUND(1011, "Notification not found", HttpStatus.NOT_FOUND),
+    INSUFFICIENT_STOCK(1012, "Insufficient stock", HttpStatus.BAD_REQUEST),
     SAME_PASSWORD(1010, "New password must be different from current password", HttpStatus.BAD_REQUEST);
 
 

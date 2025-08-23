@@ -1,11 +1,14 @@
 package org.example.gundokai.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.gundokai.configuration.VnpayConfig;
 import org.example.gundokai.service.PaymentProcessorService;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import java.net.URLEncoder;
@@ -21,8 +24,11 @@ public class VNPayCallbackController {
 
     private final PaymentProcessorService paymentProcessorService;
 
+    // VNPayCallbackController.java
+    // VNPayCallbackController.java
     @GetMapping("/vnpay-return")
-    public String handleVnpayReturn(HttpServletRequest request) {
+    public String handleVnpayReturn(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
         log.info("[VNPAY] Handling return callback...");
 
         Map<String, String> fields = new HashMap<>();
@@ -43,8 +49,6 @@ public class VNPayCallbackController {
         for (int i = 0; i < fieldNames.size(); i++) {
             String key = fieldNames.get(i);
             String value = fields.get(key);
-            // Bỏ encode hoặc dùng UTF-8
-            // value = URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
 
             if (i > 0) {
                 hashData.append("&");
@@ -59,7 +63,8 @@ public class VNPayCallbackController {
 
         if (!secureHashCheck.equalsIgnoreCase(vnp_SecureHash)) {
             log.warn("[VNPAY] Invalid signature. Calculated: {}, Received: {}", secureHashCheck, vnp_SecureHash);
-            return "invalid-signature";
+            // ✅ Redirect về trang chủ với JavaScript auto-clear cart
+            return "redirect:http://localhost:3000/payment-success?status=error&reason=invalid_signature";
         }
 
         String transactionStatus = request.getParameter("vnp_TransactionStatus");
@@ -67,31 +72,85 @@ public class VNPayCallbackController {
         String orderId = request.getParameter("vnp_TxnRef");
         String transactionId = request.getParameter("vnp_TransactionNo");
         String payDate = request.getParameter("vnp_PayDate");
-
-        log.info("[VNPAY] Received payDate: {}", payDate);
+        String amount = request.getParameter("vnp_Amount");
 
         if (payDate == null || payDate.length() != 14) {
             log.error("[VNPAY] Invalid payDate format: {}", payDate);
-            return "payment-error";
+            return "redirect:http://localhost:3000/payment-success?status=error&reason=invalid_date";
         }
 
         String status = ("00".equals(transactionStatus) && "00".equals(responseCode)) ? "CONFIRMED" : "FAILED";
 
         try {
             LocalDateTime paidAt = parsePayDate(payDate);
-            log.info("[VNPAY] Processing payment orderId={}, transactionId={}, status={}, paidAt={}", orderId, transactionId, status, paidAt);
+            log.info("[VNPAY] Processing payment orderId={}, transactionId={}, status={}, paidAt={}",
+                    orderId, transactionId, status, paidAt);
 
+            // Process payment
             paymentProcessorService.processPayment(orderId, transactionId, status, paidAt);
-            return "payment-" + status.toLowerCase();
+
+            if ("CONFIRMED".equals(status)) {
+                log.info("[VNPAY] Payment confirmed for order {}. Using HTML redirect.", orderId);
+
+                String actualAmount = String.valueOf(Long.parseLong(amount) / 100);
+                String redirectUrl = "http://localhost:3000/payment-success?status=success&orderId=" + orderId + "&amount=" + actualAmount;
+
+                log.info("[VNPAY] HTML Redirect URL: {}", redirectUrl);
+
+                // ✅ Sử dụng HTML redirect thay vì Spring redirect
+                response.setContentType("text/html");
+                response.getWriter().write(
+                        "<html><head>" +
+                                "<meta http-equiv='refresh' content='0; url=" + redirectUrl + "'>" +
+                                "<script>window.location.href='" + redirectUrl + "';</script>" +
+                                "</head><body>" +
+                                "<p>Redirecting to payment success page...</p>" +
+                                "<p>If not redirected, <a href='" + redirectUrl + "'>click here</a></p>" +
+                                "</body></html>"
+                );
+                response.getWriter().flush();
+
+                return null; // Không return view vì đã write response
+
+            } else {
+                // Similar handling for failed payment
+                String redirectUrl = "http://localhost:3000/payment-success?status=failed&orderId=" + orderId;
+
+                response.setContentType("text/html");
+                response.getWriter().write(
+                        "<html><head>" +
+                                "<meta http-equiv='refresh' content='0; url=" + redirectUrl + "'>" +
+                                "<script>window.location.href='" + redirectUrl + "';</script>" +
+                                "</head><body>" +
+                                "<p>Redirecting...</p>" +
+                                "</body></html>"
+                );
+                response.getWriter().flush();
+
+                return null;
+            }
+
         } catch (Exception e) {
             log.error("[VNPAY] Error while processing payment: {}", e.getMessage(), e);
-            return "payment-error";
+
+            String redirectUrl = "http://localhost:3000/payment-success?status=error&reason=system_error";
+
+            response.setContentType("text/html");
+            response.getWriter().write(
+                    "<html><head>" +
+                            "<meta http-equiv='refresh' content='0; url=" + redirectUrl + "'>" +
+                            "<script>window.location.href='" + redirectUrl + "';</script>" +
+                            "</head><body>" +
+                            "<p>Error occurred, redirecting...</p>" +
+                            "</body></html>"
+            );
+            response.getWriter().flush();
+
+            return null;
         }
     }
 
-
     private LocalDateTime parsePayDate(String payDate) {
-        // vnp_PayDate có format: yyyyMMddHHmmss, ví dụ: 20250805155315
         return LocalDateTime.of(
                 Integer.parseInt(payDate.substring(0, 4)),      // year
                 Integer.parseInt(payDate.substring(4, 6)),      // month
