@@ -52,7 +52,7 @@ public class NotificationsService {
         notifications.setMessage("Bạn có đơn hàng mới ! Vui lòng kiểm tra đơn hàng.");
         return notificationsMapper.toNotificationsResponse(notificationsRepository.save(notifications));
     }
-//    public NotificationsResponse updateNotificationByAdmin(NotificationsRequest notificationsRequest, String id) {
+//    public NotificationsResponse updateNotificationByAdmin(NotificationsRequest notificationsRequest, String NotificationsId) {
 //
 //    }
 }
