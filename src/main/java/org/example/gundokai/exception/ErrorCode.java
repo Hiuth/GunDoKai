@@ -58,6 +58,8 @@ public enum ErrorCode {
     PAYMENT_LOG_FAILED(3008, "Failed to log payment transaction", HttpStatus.INTERNAL_SERVER_ERROR),
     INVALID_INPUT(4001, "Invalid input", HttpStatus.BAD_REQUEST),
     WRONG_PASSWORD(1009, "Current password is incorrect", HttpStatus.BAD_REQUEST),
+    INSUFFICIENT_STOCK(1010, "Insufficient stock", HttpStatus.BAD_REQUEST),
+//    PRODUCT_NOT_EXISTS
     SAME_PASSWORD(1010, "New password must be different from current password", HttpStatus.BAD_REQUEST);
 
 

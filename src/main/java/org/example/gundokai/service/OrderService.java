@@ -48,19 +48,43 @@ public class OrderService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        // Tạo order
-        Order order = orderMapper.toOrder(request);
-        order.setUser(user);
-        order.setStatus(OrderStatus.PENDING);
-        order.setPaymentMethod(request.getPaymentMethod());
-        order.setPaymentStatus(PaymentStatus.PENDING);
-        orderRepository.save(order);
-
-        // Thêm OrderDetails nếu có
+        // ✅ Kiểm tra stock trước khi tạo order
         if (request.getItems() != null && !request.getItems().isEmpty()) {
             for (OrderDetailRequest item : request.getItems()) {
                 Product product = productRepository.findById(item.getProductId())
                         .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS));
+
+                // ✅ Kiểm tra stock đủ không
+                if (product.getStockQuantity() < item.getQuantity()) {
+                    throw new AppException(ErrorCode.INSUFFICIENT_STOCK, "Sản phẩm " + product.getProductName() + " chỉ còn " + product.getStockQuantity() + " trong kho, bạn đặt " + item.getQuantity());
+                }
+            }
+        }
+
+        // Tạo order
+        Order order = orderMapper.toOrder(request);
+        order.setUser(user);
+        order.setStatus(OrderStatus.PENDING);
+
+        order.setPaymentMethod(request.getPaymentMethod());
+        order.setPaymentStatus(PaymentStatus.PENDING);
+        orderRepository.save(order);
+
+        // ✅ Thêm OrderDetails và giảm stock ngay lập tức
+        if (request.getItems() != null && !request.getItems().isEmpty()) {
+            for (OrderDetailRequest item : request.getItems()) {
+                Product product = productRepository.findById(item.getProductId())
+                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS));
+
+                // ✅ Giảm stock ngay khi tạo order (cho cả COD và VNPay)
+                int currentStock = product.getStockQuantity();
+                int newStock = currentStock - item.getQuantity();
+                product.setStockQuantity(newStock);
+                productRepository.save(product);
+
+                log.info("Decreased stock for product {} ({}): {} -> {} (Order: {}, Method: {})",
+                        product.getId(), product.getProductName(), currentStock, newStock,
+                        order.getId(), request.getPaymentMethod());
 
                 OrderDetail detail = orderDetailMapper.toOrderDetail(item);
                 detail.setOrder(order);
@@ -89,11 +113,11 @@ public class OrderService {
 
         // Xử lý thanh toán
         if (request.getPaymentMethod() == PaymentMethod.VNPAY) {
-            // Thanh toán VNPay
+            // Thanh toán VNPay - stock đã giảm ở trên
             paymentLogService.createPaymentLog(savedOrder.getId(), "VNPAY", savedOrder.getTotalAmount());
 
             String bankCode = "VNPAYQR";
-            String ipAddress = "127.0.0.1"; // TODO: lấy IP thực từ request nếu controller xử lý
+            String ipAddress = "127.0.0.1";
             String paymentUrl = VNPayPaymentUtil.generateVnpayPaymentUrl(
                     savedOrder.getId(),
                     savedOrder.getTotalAmount(),
@@ -102,12 +126,12 @@ public class OrderService {
             );
 
             response.setPaymentUrl(paymentUrl);
-            log.info("Initiated VNPAY payment for Order ID: {}, Amount: {}, URL: {}",
+            log.info("Initiated VNPAY payment for Order ID: {}, Amount: {}, URL: {}, Stock decreased immediately",
                     savedOrder.getId(), savedOrder.getTotalAmount(), paymentUrl);
         } else if (request.getPaymentMethod() == PaymentMethod.COD) {
-            // Thanh toán COD
+            // Thanh toán COD - stock đã giảm ở trên
             paymentLogService.createPaymentLog(savedOrder.getId(), "COD", savedOrder.getTotalAmount());
-            log.info("Created COD payment log for Order ID: {}, Amount: {}",
+            log.info("Created COD payment log for Order ID: {}, Amount: {}, Stock decreased immediately",
                     savedOrder.getId(), savedOrder.getTotalAmount());
         }
 

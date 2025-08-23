@@ -15,7 +15,7 @@ public class VNPayPaymentUtil {
     private static final String VNP_TMN_CODE = "ZM6O5WI1";
     private static final String VNP_HASH_SECRET = "ZGZWSKEV0U2H7EUEWK0FF31UZGEIQPOQ";
     private static final String VNP_PAY_URL = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    private static final String VNP_RETURN_URL = "https://51258aa9922c.ngrok-free.app/vnpay-return";
+    private static final String VNP_RETURN_URL = "https://4f13e53a44fb.ngrok-free.app/vnpay-return";
 
     public static String generateVnpayPaymentUrl(String orderId, BigDecimal amount, String bankCode, String ipAddress) {
         System.out.println("=== GENERATING VNPAY URL ===");

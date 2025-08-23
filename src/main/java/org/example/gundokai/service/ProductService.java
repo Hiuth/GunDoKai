@@ -144,6 +144,7 @@ public class ProductService {
         }
         return "Deleted product successfully";
     }
-
+    public Integer getProductCount() {
+        return productRepository.findAll().size();
+    }
 }
-
