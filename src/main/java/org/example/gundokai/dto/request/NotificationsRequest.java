@@ -11,5 +11,4 @@ import lombok.experimental.FieldDefaults;
 public class NotificationsRequest {
     String email;
     String message;
-    String is_read;
 }

@@ -114,6 +114,10 @@ public class ProductService {
         return productRepository.findTop5ProductsWithLowestStock();
     }
 
+    public Integer getProductCount() {
+        return productRepository.findAll().size();
+    }
+
     @Transactional
     public String deleteProduct(String productId) {
         Product product = productRepository.findById(productId).orElseThrow(

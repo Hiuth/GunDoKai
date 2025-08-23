@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.example.gundokai.dto.request.NotificationsRequest;
 import org.example.gundokai.dto.request.OrderDetailRequest;
 import org.example.gundokai.dto.request.OrderRequest;
 import org.example.gundokai.dto.respone.OrderResponse;
@@ -41,6 +42,7 @@ public class OrderService {
     PaymentLogService paymentLogService;
     OrderMapper orderMapper;
     OrderDetailMapper orderDetailMapper;
+    NotificationsService notificationService;
 
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
@@ -145,6 +147,11 @@ public class OrderService {
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
         order.setStatus(newStatus);
         orderRepository.save(order);
+        NotificationsRequest notificationRequest = NotificationsRequest.builder()
+                .email(order.getEmail())
+                .message("Đơn hàng của bạn đã được cập nhật trạng thái: " + newStatus.name())
+                .build();
+        notificationService.createNotification(notificationRequest);
         return orderMapper.toOrderResponse(order);
     }
 
@@ -161,7 +168,6 @@ public class OrderService {
         if (order.getStatus() != OrderStatus.PENDING) {
             throw new AppException(ErrorCode.ORDER_INVALID_STATUS);
         }
-
         order.setStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
         return orderMapper.toOrderResponse(order);
@@ -194,11 +200,16 @@ public class OrderService {
         if (order.getStatus() == OrderStatus.CANCELLED) {
             throw new AppException(ErrorCode.ORDER_ALREADY_CANCELLED);
         }
-
         order.setStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
+        NotificationsRequest notificationRequest = NotificationsRequest.builder()
+                .email(order.getEmail())
+                .message("Đơn hàng của bạn đã bị hủy")
+                .build();
+        notificationService.createNotification(notificationRequest);
         return orderMapper.toOrderResponse(order);
     }
+
     public Page<OrderResponse> getOrdersByUserId(String userId, int page, int size) {
         Page<Order> orders = orderRepository.findByUser_Id(userId, PageRequest.of(page, size));
         return orders.map(orderMapper::toOrderResponse);
