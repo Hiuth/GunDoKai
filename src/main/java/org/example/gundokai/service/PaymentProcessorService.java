@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class PaymentProcessorService {
     private final PaymentLogService paymentLogService;
     private final OrderService orderService;
+    private final SocketService socketService;
 
     @Transactional
     public void processPayment(String orderId, String transactionId, String status, LocalDateTime paidAt) {
@@ -24,6 +25,26 @@ public class PaymentProcessorService {
 
             paymentLogService.updatePaymentLogOnly(orderId, transactionId, status, paidAt);
             orderService.updatePaymentStatus(orderId, paymentStatus);
+
+            // ✅ Emit qua WebSocket cho payment result
+            socketService.emitPaymentResult(orderId, paymentStatus.name());
+
+            // ✅ THÊM: Emit notification cho admin panel nếu thanh toán thành công
+            if (paymentStatus == PaymentStatus.CONFIRMED) {
+                // Lấy thông tin order để gửi notification
+                var order = orderService.getOrderById(orderId); // Cần implement method này
+                if (order != null) {
+                    socketService.emitNotification(
+                            orderId,
+                            order.getCustomerName(),
+                            order.getEmail(),
+                            order.getTotalAmount(),
+                            "VNPay", // hoặc lấy từ payment method thực tế
+                            transactionId
+                    );
+                    log.info("Notification sent for successful payment: {}", orderId);
+                }
+            }
 
             log.info("Payment status updated successfully for orderId: {}", orderId);
         } catch (IllegalArgumentException e) {
@@ -40,6 +61,20 @@ public class PaymentProcessorService {
 
         paymentLogService.updatePaymentLogOnly(orderId, transactionId, "CONFIRMED", paidAt);
         orderService.updatePaymentStatus(orderId, PaymentStatus.CONFIRMED);
+
+        // ✅ THÊM: Emit notification cho manual payment
+        var order = orderService.getOrderById(orderId);
+        if (order != null) {
+            socketService.emitNotification(
+                    orderId,
+                    order.getCustomerName(),
+                    order.getEmail(),
+                    order.getTotalAmount(),
+                    "MANUAL", // Đánh dấu là thanh toán thủ công
+                    transactionId
+            );
+            log.info("Manual payment notification sent for order: {}", orderId);
+        }
     }
 
     @Transactional
@@ -50,5 +85,8 @@ public class PaymentProcessorService {
 
         paymentLogService.updatePaymentLogOnly(orderId, transactionId, "FAILED", paidAt);
         orderService.updatePaymentStatus(orderId, PaymentStatus.FAILED);
+
+        // ✅ Emit WebSocket cho failed payment
+        socketService.emitPaymentResult(orderId, "FAILED");
     }
 }
