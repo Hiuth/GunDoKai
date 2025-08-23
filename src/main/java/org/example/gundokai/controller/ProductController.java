@@ -121,4 +121,13 @@ public class ProductController {
         response.setResult(productService.deleteProduct(productId));
         return response;
     }
+
+    @GetMapping("/count")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<Integer> getProductCount(){
+        ApiResponse<Integer> response = new ApiResponse<>();
+        response.setMessage("Get Product Count");
+        response.setResult(productService.getProductCount());
+        return response;
+    }
 }

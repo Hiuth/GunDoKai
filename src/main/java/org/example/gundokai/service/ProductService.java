@@ -132,5 +132,9 @@ public class ProductService {
     public List<Product> randomProduct(){
         return productRepository.findRandomProducts();
     }
+
+    public Integer getProductCount() {
+        return productRepository.findAll().size();
+    }
 }
 
