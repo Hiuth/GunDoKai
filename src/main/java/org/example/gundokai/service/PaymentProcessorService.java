@@ -39,6 +39,22 @@ public class PaymentProcessorService {
                     Order order = orderRepository.findByIdWithDetails(orderId)
                             .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
                     orderService.decreaseStockForOrder(order);
+                    NotificationsRequest notificationRequest = NotificationsRequest.builder()
+                            .email(order.getEmail())
+                            .message(String.format("Thanh toán thành công cho đơn hàng #%s. Số tiền: %,.0f VND. Mã giao dịch: %s",
+                                    orderId, order.getTotalAmount(), transactionId))
+                            .build();
+                    notificationService.createNotification(notificationRequest);
+
+                    NotificationsRequest notificationRequest2 = NotificationsRequest.builder()
+                            .email("admin")
+                            .message(String.format("Bạn có đơn hàng mới #%s. Số tiền: %,.0f VND. Hãy kiểm tra ngay",
+                                    orderId, order.getTotalAmount()))
+                            .build();
+
+                    notificationService.createNotification(notificationRequest2);
+                    log.info("Payment success notification created for user: {} - orderId: {}", order.getEmail(), orderId);
+                    log.info("Notification sent for successful payment: {}", orderId);
                     log.info("Stock decreased successfully for order: {}", orderId);
                 } catch (Exception e) {
                     log.error("Failed to decrease stock for order: {}, error: {}", orderId, e.getMessage());
@@ -65,24 +81,6 @@ public class PaymentProcessorService {
                             "VNPay",
                             transactionId
                     );
-
-                    NotificationsRequest notificationRequest = NotificationsRequest.builder()
-                            .email(order.getEmail())
-                            .message(String.format("Thanh toán thành công cho đơn hàng #%s. Số tiền: %,.0f VND. Mã giao dịch: %s",
-                                    orderId, order.getTotalAmount(), transactionId))
-                            .build();
-                    notificationService.createNotification(notificationRequest);
-
-                    NotificationsRequest notificationRequest2 = NotificationsRequest.builder()
-                            .email("admin")
-                            .message(String.format("Bạn có đơn hàng mới #%s. Số tiền: %,.0f VND. Hãy kiểm tra ngay",
-                                    orderId, order.getTotalAmount()))
-                            .build();
-
-                    notificationService.createNotification(notificationRequest2);
-                    log.info("Payment success notification created for user: {} - orderId: {}", order.getEmail(), orderId);
-
-                    log.info("Notification sent for successful payment: {}", orderId);
                 }
             }
 
