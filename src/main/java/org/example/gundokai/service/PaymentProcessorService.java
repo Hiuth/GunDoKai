@@ -45,7 +45,6 @@ public class PaymentProcessorService {
                             "VNPay", // hoặc lấy từ payment method thực tế
                             transactionId
                     );
-                    
                     // ✅ THÊM: Tạo thông báo cho user sau khi thanh toán thành công
                     NotificationsRequest notificationRequest = NotificationsRequest.builder()
                             .email(order.getEmail())
