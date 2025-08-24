@@ -21,4 +21,10 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     Page<Order> findByStatus(OrderStatus status, Pageable pageable);
     @Query("SELECT o FROM Order o JOIN FETCH o.orderDetails WHERE o.id = :id")
     Optional<Order> findByIdWithDetails(@Param("id") String id);
+    // ✅ Thêm method sort theo orderDate
+    @Query("SELECT o FROM Order o WHERE o.user.id = :userId ORDER BY o.orderDate DESC")
+    Page<Order> findByUser_IdOrderByOrderDateDesc(@Param("userId") String userId, Pageable pageable);
+
+    // Hoặc dùng method name convention
 }
+

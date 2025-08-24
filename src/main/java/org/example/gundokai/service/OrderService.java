@@ -22,6 +22,7 @@ import org.example.gundokai.util.SecurityUtil;
 import org.example.gundokai.util.VNPayPaymentUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -234,9 +235,26 @@ public class OrderService {
         return orderMapper.toOrderResponse(order);
     }
 
+    // OrderService.java
     public Page<OrderResponse> getOrdersByUserId(String userId, int page, int size) {
-        Page<Order> orders = orderRepository.findByUser_Id(userId, PageRequest.of(page, size));
-        return orders.map(orderMapper::toOrderResponse);
+        // ✅ Sử dụng method có sort sẵn
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Order> orders = orderRepository.findByUser_IdOrderByOrderDateDesc(userId, pageable);
+
+        log.info("Found {} orders for user {} (sorted by orderDate DESC)", orders.getContent().size(), userId);
+
+        return orders.map(order -> {
+            OrderResponse response = orderMapper.toOrderResponse(order);
+
+            // Map order details
+            List<OrderDetailResponse> details = order.getOrderDetails().stream()
+                    .map(orderDetailMapper::toOrderDetailResponse)
+                    .collect(Collectors.toList());
+            response.setOrderDetails(details);
+
+            return response;
+        });
     }
 
     public Page<OrderResponse> getAllOrdersForAdmin(String status, int page, int size) {
