@@ -48,21 +48,9 @@ public class NotificationsService {
 
     public List<NotificationsResponse> getAllNotifications() {
         List<Notifications> notifications = notificationsRepository.findAllByUserId(getAccountIdFromContext());
-        
-        // Debug log để kiểm tra dữ liệu từ database
-        notifications.forEach(notification -> {
-            System.out.println("From DB - ID: " + notification.getId() + ", readOrNot: " + notification.isReadOrNot());
-        });
-        
         List<NotificationsResponse> responses = notifications.stream()
                 .map(notificationsMapper::toNotificationsResponse)
                 .collect(Collectors.toList());
-        
-        // Debug log để kiểm tra dữ liệu sau khi mapping
-        responses.forEach(response -> {
-            System.out.println("After mapping - ID: " + response.getId() + ", readOrNot: " + response.isReadOrNot());
-        });
-        
         return responses;
     }
 

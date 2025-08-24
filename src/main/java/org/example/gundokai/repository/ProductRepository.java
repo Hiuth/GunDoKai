@@ -23,6 +23,6 @@ public interface ProductRepository extends JpaRepository<Product,String> {
     @Query( "SELECT c FROM Product c ORDER BY c.createdAt DESC LIMIT 5")
     List<Product> findTop5NewestProducts();
 
-    @Query( "SELECT c FROM Product c WHERE c.stockQuantity > 0 ORDER BY c.stockQuantity ASC LIMIT 5")
+    @Query( "SELECT c FROM Product c WHERE c.stockQuantity > 0 and c.status= 'Còn hàng' ORDER BY c.stockQuantity ASC LIMIT 5")
     List<Product> findTop5ProductsWithLowestStock();
 }
