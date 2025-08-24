@@ -45,21 +45,24 @@ public class OrderService {
     OrderDetailMapper orderDetailMapper;
     NotificationsService notificationService;
 
+    // OrderService.java
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
         String userId = SecurityUtil.getUserId();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        // ✅ Kiểm tra stock trước khi tạo order
+        // ✅ Kiểm tra stock trước khi tạo order NHƯNG KHÔNG TRỪ
         if (request.getItems() != null && !request.getItems().isEmpty()) {
             for (OrderDetailRequest item : request.getItems()) {
                 Product product = productRepository.findById(item.getProductId())
                         .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS));
 
-                // ✅ Kiểm tra stock đủ không
+                // ✅ Chỉ kiểm tra, KHÔNG trừ stock
                 if (product.getStockQuantity() < item.getQuantity()) {
-                    throw new AppException(ErrorCode.INSUFFICIENT_STOCK, "Sản phẩm " + product.getProductName() + " chỉ còn " + product.getStockQuantity() + " trong kho, bạn đặt " + item.getQuantity());
+                    throw new AppException(ErrorCode.INSUFFICIENT_STOCK,
+                            "Sản phẩm " + product.getProductName() + " chỉ còn " +
+                                    product.getStockQuantity() + " trong kho, bạn đặt " + item.getQuantity());
                 }
             }
         }
@@ -68,30 +71,24 @@ public class OrderService {
         Order order = orderMapper.toOrder(request);
         order.setUser(user);
         order.setStatus(OrderStatus.PENDING);
-
         order.setPaymentMethod(request.getPaymentMethod());
         order.setPaymentStatus(PaymentStatus.PENDING);
         orderRepository.save(order);
 
-        // ✅ Thêm OrderDetails và giảm stock ngay lập tức
+        // ✅ Thêm OrderDetails NHƯNG KHÔNG TRỪ STOCK
         if (request.getItems() != null && !request.getItems().isEmpty()) {
             for (OrderDetailRequest item : request.getItems()) {
                 Product product = productRepository.findById(item.getProductId())
                         .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS));
 
-                // ✅ Giảm stock ngay khi tạo order (cho cả COD và VNPay)
-                int currentStock = product.getStockQuantity();
-                int newStock = currentStock - item.getQuantity();
-                product.setStockQuantity(newStock);
-                productRepository.save(product);
-
-                log.info("Decreased stock for product {} ({}): {} -> {} (Order: {}, Method: {})",
-                        product.getId(), product.getProductName(), currentStock, newStock,
-                        order.getId(), request.getPaymentMethod());
+                // ✅ KHÔNG trừ stock ở đây nữa
+                log.info("Order created for product {} ({}): quantity {} (Stock NOT decreased yet)",
+                        product.getId(), product.getProductName(), item.getQuantity());
 
                 OrderDetail detail = orderDetailMapper.toOrderDetail(item);
                 detail.setOrder(order);
                 detail.setProduct(product);
+//                detail.setProductName(product.getProductName());
                 detail.setUnitPrice(BigDecimal.valueOf(product.getPrice()));
                 detail.setSubTotal(detail.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
                 order.getOrderDetails().add(detail);
@@ -116,7 +113,7 @@ public class OrderService {
 
         // Xử lý thanh toán
         if (request.getPaymentMethod() == PaymentMethod.VNPAY) {
-            // Thanh toán VNPay - stock đã giảm ở trên
+            // ✅ VNPay - stock sẽ được trừ khi payment confirmed
             paymentLogService.createPaymentLog(savedOrder.getId(), "VNPAY", savedOrder.getTotalAmount());
 
             String bankCode = "VNPAYQR";
@@ -129,10 +126,12 @@ public class OrderService {
             );
 
             response.setPaymentUrl(paymentUrl);
-            log.info("Initiated VNPAY payment for Order ID: {}, Amount: {}, URL: {}, Stock decreased immediately",
+            log.info("Initiated VNPAY payment for Order ID: {}, Amount: {}, URL: {}, Stock will be decreased AFTER successful payment",
                     savedOrder.getId(), savedOrder.getTotalAmount(), paymentUrl);
+
         } else if (request.getPaymentMethod() == PaymentMethod.COD) {
-            // Thanh toán COD - stock đã giảm ở trên
+            // ✅ COD - trừ stock ngay vì đã confirmed
+            decreaseStockForOrder(savedOrder);
             paymentLogService.createPaymentLog(savedOrder.getId(), "COD", savedOrder.getTotalAmount());
             log.info("Created COD payment log for Order ID: {}, Amount: {}, Stock decreased immediately",
                     savedOrder.getId(), savedOrder.getTotalAmount());
@@ -217,37 +216,63 @@ public class OrderService {
         orderRepository.save(order);
         return orderMapper.toOrderResponse(order);
     }
+    // OrderService.java
     @Transactional
     public OrderResponse adminCancelOrder(String orderId) {
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findByIdWithDetails(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
-        if (order.getStatus() == OrderStatus.CANCELLED) {
-            throw new AppException(ErrorCode.ORDER_ALREADY_CANCELLED);
+        if (order.getStatus() == OrderStatus.SHIPPED||
+                order.getStatus() == OrderStatus.CANCELLED ||
+                order.getStatus() == OrderStatus.COMPLETED) {
+//            throw new AppException(ErrorCode,
+//                    "Không thể hủy đơn hàng có trạng thái: " + order.getStatus());
         }
+
+        log.info("Admin cancelling order: {} with status: {}", orderId, order.getStatus());
+
+        // ✅ Restore stock nếu payment đã confirmed (stock đã bị trừ)
+        if (order.getPaymentStatus() == PaymentStatus.CONFIRMED ||
+                order.getPaymentStatus() == PaymentStatus.PAID ||
+                order.getPaymentMethod() == PaymentMethod.COD) {
+
+            log.info("Restoring stock for cancelled order: {}", orderId);
+            restoreStockForOrder(order);
+        } else {
+            log.info("No stock restoration needed for order: {} (payment not confirmed)", orderId);
+        }
+
+        // Cập nhật trạng thái order
         order.setStatus(OrderStatus.CANCELLED);
+        order.setPaymentStatus(PaymentStatus.CANCELLED);
         orderRepository.save(order);
-        NotificationsRequest notificationRequest = NotificationsRequest.builder()
-                .email(order.getEmail())
-                .message("Đơn hàng của bạn đã bị hủy")
-                .build();
-        notificationService.createNotification(notificationRequest);
-        return orderMapper.toOrderResponse(order);
+
+        log.info("Order {} cancelled by admin successfully", orderId);
+
+        // Trả về response
+        OrderResponse response = orderMapper.toOrderResponse(order);
+        List<OrderDetailResponse> detailResponses = order.getOrderDetails().stream()
+                .map(orderDetailMapper::toOrderDetailResponse)
+                .collect(Collectors.toList());
+        response.setOrderDetails(detailResponses);
+
+        return response;
     }
 
     // OrderService.java
     public Page<OrderResponse> getOrdersByUserId(String userId, int page, int size) {
-        // ✅ Sử dụng method có sort sẵn
+        log.info("Getting successful orders for userId: {}", userId);
+
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<Order> orders = orderRepository.findByUser_IdOrderByOrderDateDesc(userId, pageable);
+        // ✅ Chỉ lấy orders có payment thành công
+        Page<Order> orders = orderRepository.findSuccessfulOrdersByUserId(userId, pageable);
 
-        log.info("Found {} orders for user {} (sorted by orderDate DESC)", orders.getContent().size(), userId);
+        log.info("Found {} successful orders for user {}", orders.getContent().size(), userId);
 
         return orders.map(order -> {
             OrderResponse response = orderMapper.toOrderResponse(order);
 
-            // Map order details
             List<OrderDetailResponse> details = order.getOrderDetails().stream()
                     .map(orderDetailMapper::toOrderDetailResponse)
                     .collect(Collectors.toList());
@@ -267,7 +292,15 @@ public class OrderService {
         }
         return orders.map(orderMapper::toOrderResponse);
     }
+    // ✅ Method cho admin xem tất cả orders
+    public Page<OrderResponse> getAllOrdersByUserId(String userId, int page, int size) {
+        log.info("Getting ALL orders for userId: {} (admin view)", userId);
 
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Order> orders = orderRepository.findByUser_IdOrderByOrderDateDesc(userId, pageable);
+
+        return orders.map(orderMapper::toOrderResponse);
+    }
     public BigDecimal calculateTotalAmount(String orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
@@ -282,5 +315,52 @@ public class OrderService {
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
         order.setPaymentStatus(paymentStatus);
         orderRepository.save(order);
+    }
+    // OrderService.java
+    @Transactional
+    public void decreaseStockForOrder(Order order) {
+        log.info("Decreasing stock for order: {}", order.getId());
+
+        for (OrderDetail detail : order.getOrderDetails()) {
+            Product product = productRepository.findById(detail.getProduct().getId())
+                    .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS));
+
+            int currentStock = product.getStockQuantity();
+            int orderQuantity = detail.getQuantity();
+
+            // ✅ Kiểm tra stock còn đủ không (có thể có order khác đã mua)
+            if (currentStock < orderQuantity) {
+                throw new AppException(ErrorCode.INSUFFICIENT_STOCK,
+                        "Sản phẩm " + product.getProductName() + " không đủ stock. " +
+                                "Còn lại: " + currentStock + ", cần: " + orderQuantity);
+            }
+
+            int newStock = currentStock - orderQuantity;
+            product.setStockQuantity(newStock);
+            productRepository.save(product);
+
+            log.info("Decreased stock for product {} ({}): {} -> {} (Order: {})",
+                    product.getId(), product.getProductName(), currentStock, newStock, order.getId());
+        }
+    }
+
+    @Transactional
+    public void restoreStockForOrder(Order order) {
+        log.info("Restoring stock for order: {}", order.getId());
+
+        for (OrderDetail detail : order.getOrderDetails()) {
+            Product product = productRepository.findById(detail.getProduct().getId())
+                    .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS));
+
+            int currentStock = product.getStockQuantity();
+            int orderQuantity = detail.getQuantity();
+            int restoredStock = currentStock + orderQuantity;
+
+            product.setStockQuantity(restoredStock);
+            productRepository.save(product);
+
+            log.info("Restored stock for product {} ({}): {} -> {} (Order: {})",
+                    product.getId(), product.getProductName(), currentStock, restoredStock, order.getId());
+        }
     }
 }

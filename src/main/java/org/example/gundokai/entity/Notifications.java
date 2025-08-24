@@ -25,8 +25,9 @@ public class Notifications {
     User user;
 
     String message;
+    @Column(name = "is_read", nullable = false)
+    boolean readOrNot = false;
 
-    boolean readOrNot;
 
     LocalDateTime sent_at;
     @PrePersist

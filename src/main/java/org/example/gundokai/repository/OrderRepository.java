@@ -25,6 +25,13 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     @Query("SELECT o FROM Order o WHERE o.user.id = :userId ORDER BY o.orderDate DESC")
     Page<Order> findByUser_IdOrderByOrderDateDesc(@Param("userId") String userId, Pageable pageable);
 
-    // Hoặc dùng method name convention
+    // ✅ Method lấy orders có payment thành công
+    @Query("SELECT o FROM Order o WHERE o.user.id = :userId " +
+            "AND (o.paymentStatus = 'CONFIRMED' OR o.paymentStatus = 'PAID' OR " +
+            "(o.paymentMethod = 'COD' AND o.paymentStatus = 'PENDING')) " +
+            "ORDER BY o.orderDate DESC")
+    Page<Order> findSuccessfulOrdersByUserId(@Param("userId") String userId, Pageable pageable);
+
+  ;
 }
 
