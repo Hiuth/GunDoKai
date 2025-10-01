@@ -6,7 +6,7 @@ import org.example.gundokai.entity.MainCategory;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring") // thêm nè
 public interface MainCategoryMapper {
     MainCategory toMainCategory(MainCategoryRequest mainCategoryRequest);
 

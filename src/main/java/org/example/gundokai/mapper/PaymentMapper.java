@@ -14,7 +14,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring")//hé hé
 public interface PaymentMapper {
     @Mapping(source = "paymentLog.id", target = "id")
     @Mapping(source = "paymentLog.orderId", target = "orderId")
