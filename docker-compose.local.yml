@@ -1,0 +1,36 @@
+version: "3.8"
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: gundokai-mysql
+    environment:
+      MYSQL_DATABASE: gundokai
+      MYSQL_ROOT_PASSWORD: vuhoangquan2004
+    ports:
+      - "3306:3306"
+    networks:
+      - gundokai-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    image: anhthu7/gundokai-backend:v1.0
+    container_name: gundokai-backend
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://gundokai-mysql:3306/gundokai?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=vuhoangquan2004
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - gundokai-network
+
+networks:
+  gundokai-network:
+    driver: bridge
