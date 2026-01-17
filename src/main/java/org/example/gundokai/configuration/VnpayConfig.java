@@ -7,15 +7,15 @@ import java.nio.charset.StandardCharsets;
 public class VnpayConfig {
 
     // Thông tin từ email VNPay
-    public static final String VNP_TMN_CODE = "ZM6O5WI1";
-    public static final String VNP_HASH_SECRET = "ZGZWSKEV0U2H7EUEWK0FF31UZGEIQPOQ";
+    public static final String VNP_TMN_CODE = "2QD9WIPZ";
+    public static final String VNP_HASH_SECRET = "C11IGDGVIVV21157LRRKOM6APJ1BFHSC";
     public static final String VNP_PAY_URL = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
 
     // URL return của bạn
-    public static final String VNP_RETURN_URL = "https://a9f28df3ba61.ngrok-free.app/vnpay-return";
+    public static final String VNP_RETURN_URL = "https://ec2-18-142-161-159.ap-southeast-1.compute.amazonaws.com/vnpay-return";
 
     // Có thể thêm IPN URL nếu cần
-    public static final String VNP_IPN_URL = "https://a9f28df3ba61.ngrok-free.app/vnpay-ipn";
+    public static final String VNP_IPN_URL = "https://ec2-18-142-161-159.ap-southeast-1.compute.amazonaws.com/vnpay-ipn";
 
     public static String hmacSHA512(final String key, final String data) {
         try {

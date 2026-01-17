@@ -12,10 +12,10 @@ import java.util.*;
 
 public class VNPayPaymentUtil {
 
-    private static final String VNP_TMN_CODE = "ZM6O5WI1";
-    private static final String VNP_HASH_SECRET = "ZGZWSKEV0U2H7EUEWK0FF31UZGEIQPOQ";
+    private static final String VNP_TMN_CODE = "2QD9WIPZ";
+    private static final String VNP_HASH_SECRET = "C11IGDGVIVV21157LRRKOM6APJ1BFHSC";
     private static final String VNP_PAY_URL = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    private static final String VNP_RETURN_URL = "https://a9f28df3ba61.ngrok-free.app/vnpay-return";
+    private static final String VNP_RETURN_URL = "https://ec2-18-142-161-159.ap-southeast-1.compute.amazonaws.com/vnpay-return";
 
     public static String generateVnpayPaymentUrl(String orderId, BigDecimal amount, String bankCode, String ipAddress) {
         System.out.println("=== GENERATING VNPAY URL ===");
