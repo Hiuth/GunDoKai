@@ -64,7 +64,7 @@ public class VNPayCallbackController {
         if (!secureHashCheck.equalsIgnoreCase(vnp_SecureHash)) {
             log.warn("[VNPAY] Invalid signature. Calculated: {}, Received: {}", secureHashCheck, vnp_SecureHash);
             // ✅ Redirect về trang chủ với JavaScript auto-clear cart
-            return "redirect:http://localhost:3000/payment-success?status=error&reason=invalid_signature";
+            return "redirect:https://gundokai-fe.vercel.app/payment-success?status=error&reason=invalid_signature";
         }
 
         String transactionStatus = request.getParameter("vnp_TransactionStatus");
@@ -76,7 +76,7 @@ public class VNPayCallbackController {
 
         if (payDate == null || payDate.length() != 14) {
             log.error("[VNPAY] Invalid payDate format: {}", payDate);
-            return "redirect:http://localhost:3000/payment-success?status=error&reason=invalid_date";
+            return "redirect:https://gundokai-fe.vercel.app/payment-success?status=error&reason=invalid_date";
         }
 
         String status = ("00".equals(transactionStatus) && "00".equals(responseCode)) ? "CONFIRMED" : "FAILED";
@@ -93,7 +93,8 @@ public class VNPayCallbackController {
                 log.info("[VNPAY] Payment confirmed for order {}. Using HTML redirect.", orderId);
 
                 String actualAmount = String.valueOf(Long.parseLong(amount) / 100);
-                String redirectUrl = "http://localhost:3000/payment-success?status=success&orderId=" + orderId + "&amount=" + actualAmount;
+                String redirectUrl = "https://gundokai-fe.vercel.app/payment-success?status=success&orderId=" + orderId
+                        + "&amount=" + actualAmount;
 
                 log.info("[VNPAY] HTML Redirect URL: {}", redirectUrl);
 
@@ -106,15 +107,14 @@ public class VNPayCallbackController {
                                 "</head><body>" +
                                 "<p>Redirecting to payment success page...</p>" +
                                 "<p>If not redirected, <a href='" + redirectUrl + "'>click here</a></p>" +
-                                "</body></html>"
-                );
+                                "</body></html>");
                 response.getWriter().flush();
 
                 return null; // Không return view vì đã write response
 
             } else {
                 // Similar handling for failed payment
-                String redirectUrl = "http://localhost:3000/payment-success?status=failed&orderId=" + orderId;
+                String redirectUrl = "https://gundokai-fe.vercel.app/payment-success?status=failed&orderId=" + orderId;
 
                 response.setContentType("text/html");
                 response.getWriter().write(
@@ -123,8 +123,7 @@ public class VNPayCallbackController {
                                 "<script>window.location.href='" + redirectUrl + "';</script>" +
                                 "</head><body>" +
                                 "<p>Redirecting...</p>" +
-                                "</body></html>"
-                );
+                                "</body></html>");
                 response.getWriter().flush();
 
                 return null;
@@ -133,7 +132,7 @@ public class VNPayCallbackController {
         } catch (Exception e) {
             log.error("[VNPAY] Error while processing payment: {}", e.getMessage(), e);
 
-            String redirectUrl = "http://localhost:3000/payment-success?status=error&reason=system_error";
+            String redirectUrl = "https://gundokai-fe.vercel.app/payment-success?status=error&reason=system_error";
 
             response.setContentType("text/html");
             response.getWriter().write(
@@ -142,8 +141,7 @@ public class VNPayCallbackController {
                             "<script>window.location.href='" + redirectUrl + "';</script>" +
                             "</head><body>" +
                             "<p>Error occurred, redirecting...</p>" +
-                            "</body></html>"
-            );
+                            "</body></html>");
             response.getWriter().flush();
 
             return null;
@@ -152,12 +150,12 @@ public class VNPayCallbackController {
 
     private LocalDateTime parsePayDate(String payDate) {
         return LocalDateTime.of(
-                Integer.parseInt(payDate.substring(0, 4)),      // year
-                Integer.parseInt(payDate.substring(4, 6)),      // month
-                Integer.parseInt(payDate.substring(6, 8)),      // day
-                Integer.parseInt(payDate.substring(8, 10)),     // hour
-                Integer.parseInt(payDate.substring(10, 12)),    // minute
-                Integer.parseInt(payDate.substring(12, 14))     // second
+                Integer.parseInt(payDate.substring(0, 4)), // year
+                Integer.parseInt(payDate.substring(4, 6)), // month
+                Integer.parseInt(payDate.substring(6, 8)), // day
+                Integer.parseInt(payDate.substring(8, 10)), // hour
+                Integer.parseInt(payDate.substring(10, 12)), // minute
+                Integer.parseInt(payDate.substring(12, 14)) // second
         );
     }
 }

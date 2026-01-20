@@ -12,10 +12,10 @@ public class VnpayConfig {
     public static final String VNP_PAY_URL = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
 
     // URL return của bạn
-    public static final String VNP_RETURN_URL = "https://ec2-18-142-161-159.ap-southeast-1.compute.amazonaws.com/vnpay-return";
+    public static final String VNP_RETURN_URL = "https://gundokai.cevvian.space/vnpay-return";
 
     // Có thể thêm IPN URL nếu cần
-    public static final String VNP_IPN_URL = "https://ec2-18-142-161-159.ap-southeast-1.compute.amazonaws.com/vnpay-ipn";
+    public static final String VNP_IPN_URL = "https://gundokai.cevvian.space/vnpay-ipn";
 
     public static String hmacSHA512(final String key, final String data) {
         try {

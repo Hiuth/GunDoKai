@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -15,7 +16,7 @@ public class VNPayPaymentUtil {
     private static final String VNP_TMN_CODE = "2QD9WIPZ";
     private static final String VNP_HASH_SECRET = "C11IGDGVIVV21157LRRKOM6APJ1BFHSC";
     private static final String VNP_PAY_URL = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    private static final String VNP_RETURN_URL = "https://ec2-18-142-161-159.ap-southeast-1.compute.amazonaws.com/vnpay-return";
+    private static final String VNP_RETURN_URL = "https://gundokai.cevvian.space/vnpay-return";
 
     public static String generateVnpayPaymentUrl(String orderId, BigDecimal amount, String bankCode, String ipAddress) {
         System.out.println("=== GENERATING VNPAY URL ===");
@@ -36,8 +37,9 @@ public class VNPayPaymentUtil {
             vnpParams.put("vnp_ReturnUrl", VNP_RETURN_URL);
             vnpParams.put("vnp_IpAddr", ipAddress);
 
-            // Thời gian tạo và hết hạn
-            LocalDateTime now = LocalDateTime.now();
+            // Thời gian tạo và hết hạn - SỬ DỤNG TIMEZONE VIETNAM (GMT+7)
+            ZoneId vietnamZone = ZoneId.of("Asia/Ho_Chi_Minh");
+            LocalDateTime now = LocalDateTime.now(vietnamZone);
             LocalDateTime expireTime = now.plusMinutes(15);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
@@ -70,7 +72,6 @@ public class VNPayPaymentUtil {
                 query.append(entry.getKey()).append("=").append(encodedValue);
             }
 
-
             // 3. Tạo secure hash
             String secureHash = hmacSHA512(VNP_HASH_SECRET, hashData.toString());
 
@@ -84,7 +85,6 @@ public class VNPayPaymentUtil {
             System.out.println("===================================");
 
             // Test hash với data từ log
-
 
             return finalUrl;
 

@@ -25,15 +25,15 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/users/send-code",  "/users","/users/request-password-reset", "/users/reset-password",
+            "/users/send-code", "/users", "/users/request-password-reset", "/users/reset-password",
             "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh",
     };
 
     private final String[] GET_ENDPOINTS = {
-            "/mainCategory/getAll" , "/subCategory/getAll","/productImg/getAllImg/*","/productDetail/get/*",
-            "/product/getProductBySubCategory/*","/product/getAll","/vnpay-return","/vnpay/**","/product/random",
-            "/product/getByProductId/*","/subCategory/getSubCategoryById/*","/subCategory/getAllByCategory/*",
-            "/mainCategory/getById/*","/product/search","/product/getTop5Newest","/product/getTop5BestSeller"
+            "/mainCategory/getAll", "/subCategory/getAll", "/productImg/getAllImg/*", "/productDetail/get/*",
+            "/product/getProductBySubCategory/*", "/product/getAll", "/vnpay-return", "/vnpay/**", "/product/random",
+            "/product/getByProductId/*", "/subCategory/getSubCategoryById/*", "/subCategory/getAllByCategory/*",
+            "/mainCategory/getById/*", "/product/search", "/product/getTop5Newest", "/product/getTop5BestSeller"
     };
 
     @Autowired
@@ -49,8 +49,8 @@ public class SecurityConfig {
                 .authenticated());
 
         httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
-                        .decoder(customJwtDecoder)
-                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                .decoder(customJwtDecoder)
+                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                 .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
 
         httpSecurity.cors(cors -> cors.configurationSource(corsConfigurationSource()));
@@ -66,8 +66,9 @@ public class SecurityConfig {
                 "http://localhost:8080",
                 "http://127.0.0.1:3000",
                 "http://localhost:3000",
-                "http://localhost:3001"
-        ));
+                "http://localhost:3001",
+                "https://gundokai.cevvian.space",
+                "https://gundokai-fe.vercel.app"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true); // Cần thiết cho SockJS nếu có gửi credentials
